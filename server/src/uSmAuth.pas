@@ -48,9 +48,11 @@ var
   LKurye, LSistemAdmin: Boolean;
 begin
   Result := TJSONObject.Create;
+  WriteLn('[Login] Giris istegi: KullaniciAdi=' + AKullaniciAdi);
 
   if (AKullaniciAdi = '') or (ASifre = '') then
   begin
+    WriteLn('[Login] HATA: Bos kullanici adi veya sifre');
     Result.AddPair('success', TJSONBool.Create(False));
     Result.AddPair('message', 'Kullanici adi ve sifre gerekli');
     Exit;
@@ -58,6 +60,7 @@ begin
 
   // Hash the password (SHA256)
   LSifreHash := THashSHA2.GetHashString(ASifre, THashSHA2.TSHA2Version.SHA256);
+  WriteLn('[Login] SifreHash: ' + LSifreHash);
 
   LQuery := DMAuth.GetAuthQuery;
   try
@@ -70,9 +73,11 @@ begin
     LQuery.ParamByName('KulAdi').AsString := AKullaniciAdi;
     LQuery.ParamByName('SifreHash').AsString := LSifreHash;
     LQuery.Open;
+    WriteLn('[Login] AuthUser sorgusu: ' + IntToStr(LQuery.RecordCount) + ' kayit');
 
     if LQuery.IsEmpty then
     begin
+      WriteLn('[Login] HATA: Kullanici bulunamadi veya sifre hatali');
       Result.AddPair('success', TJSONBool.Create(False));
       Result.AddPair('message', 'Kullanici adi veya sifre hatali');
       Exit;
@@ -150,6 +155,8 @@ begin
     LUserObj.AddPair('rolId', TJSONNumber.Create(LRolID));
     LUserObj.AddPair('kurye', TJSONBool.Create(LKurye));
     LUserObj.AddPair('sistemAdmin', TJSONBool.Create(LSistemAdmin));
+
+    WriteLn('[Login] BASARILI: ' + AKullaniciAdi + ' (UserID=' + IntToStr(LUserID) + ', TenantID=' + IntToStr(LTenantID) + ')');
 
     Result.AddPair('success', TJSONBool.Create(True));
     Result.AddPair('token', LToken);
