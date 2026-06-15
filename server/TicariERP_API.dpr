@@ -36,6 +36,8 @@ begin
   DM := TDM.Create(nil);
   WriteLn('[DM] Tenant DataModule olusturuldu.');
   DMAuth := TDMAuth.Create(nil);
+  ServerContainer1 := TServerContainer1.Create(nil);
+  WriteLn('[ServerContainer] DSServer olusturuldu.');
 
   LServer := TIdHTTPWebBrokerBridge.Create(nil);
   try
@@ -46,6 +48,7 @@ begin
     ReadLn;
   finally
     LServer.Free;
+    ServerContainer1.Free;
     DMAuth.Free;
     DM.Free;
   end;

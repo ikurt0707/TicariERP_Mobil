@@ -50,6 +50,9 @@ DUnitX-Results.xml
 *.xml
 !AndroidManifest.template.xml
 
+# Server config (contains credentials)
+server/server.ini
+
 # User specific
 *.todo
 *.bak

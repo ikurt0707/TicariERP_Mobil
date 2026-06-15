@@ -1,0 +1,6 @@
+[Database]
+Server=2.56.152.155
+Port=1433
+AuthDatabase=ERP_AUTH
+Username=SA
+Password=SIFRENIZ_BURAYA
