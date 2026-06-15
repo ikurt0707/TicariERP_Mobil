@@ -1,0 +1,12 @@
+object FrmSiparisler: TFrmSiparisler
+  Left = 0
+  Top = 0
+  Caption = 'Siparisler'
+  ClientHeight = 800
+  ClientWidth = 400
+  Fill.Color = claWhite
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  DesignerMasterStyle = 0
+end
