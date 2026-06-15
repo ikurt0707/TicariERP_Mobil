@@ -6,56 +6,53 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   System.JSON,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.ListView,
-  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
-  FMX.Edit, FMX.TabControl,
+  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls,
+  FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.TabControl, FMX.Edit,
   System.Generics.Collections,
   uOrder, uConstants;
 
 type
-  TSiparisFilter = (sfTumu, sfHazirlaniyor, sfYolda, sfTeslimEdildi, sfIptal);
+  TSiparisFilter = (sfTumu, sfBeklemede, sfTeslimEdildi, sfIptal);
 
   TFrmSiparisler = class(TForm)
     LayoutMain: TLayout;
     LayoutHeader: TLayout;
     RectHeader: TRectangle;
     BtnBack: TSpeedButton;
-    LblHeaderTitle: TLabel;
+    LblTitle: TLabel;
     TabControlMain: TTabControl;
     TabSiparisler: TTabItem;
     TabGelenCagrilar: TTabItem;
+    LayoutFilters: TLayout;
+    BtnFilterTumu: TSpeedButton;
+    BtnFilterBeklemede: TSpeedButton;
+    BtnFilterTeslim: TSpeedButton;
+    BtnFilterIptal: TSpeedButton;
     LayoutSearch: TLayout;
-    RectSearch: TRectangle;
     EdtSearch: TEdit;
-    LayoutFilter: TLayout;
-    GridFilter: TGridPanelLayout;
-    BtnFilterTumu: TCornerButton;
-    BtnFilterHazirlaniyor: TCornerButton;
-    BtnFilterYolda: TCornerButton;
-    BtnFilterTeslim: TCornerButton;
-    BtnFilterIptal: TCornerButton;
     ListViewOrders: TListView;
     ListViewGelenCagrilar: TListView;
     procedure BtnBackClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure BtnFilterTumuClick(Sender: TObject);
-    procedure BtnFilterHazirlaniyorClick(Sender: TObject);
-    procedure BtnFilterYoldaClick(Sender: TObject);
+    procedure BtnFilterBeklemedeClick(Sender: TObject);
     procedure BtnFilterTeslimClick(Sender: TObject);
     procedure BtnFilterIptalClick(Sender: TObject);
     procedure EdtSearchChange(Sender: TObject);
-    procedure ListViewOrdersItemClick(const Sender: TObject; const AItem: TListViewItem);
+    procedure ListViewOrdersItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
+    procedure ListViewGelenCagrilarItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
     procedure ListViewOrdersPullRefresh(Sender: TObject);
-    procedure ListViewGelenCagrilarItemClick(const Sender: TObject; const AItem: TListViewItem);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure TabControlMainChange(Sender: TObject);
   private
     FOrders: TOrderList;
     FFilteredOrders: TOrderList;
     FCurrentFilter: TSiparisFilter;
     FSearchText: string;
-    FCurrentPage: Integer;
-    FHasMore: Boolean;
     procedure LoadOrders;
     procedure LoadGelenCagrilar;
     procedure ApplyFilter;
@@ -63,10 +60,8 @@ type
     procedure UpdateListView;
     procedure SetFilter(AFilter: TSiparisFilter);
     procedure UpdateFilterButtons;
-    procedure LoadMoreOrders;
     procedure CreateOrderFromCall(AAramaLogID: Integer; const ATelefon, ACariAdi: string);
   public
-    property CurrentFilter: TSiparisFilter read FCurrentFilter;
   end;
 
 var
@@ -85,8 +80,10 @@ begin
   FFilteredOrders := TOrderList.Create(False);
   FCurrentFilter := sfTumu;
   FSearchText := '';
-  FCurrentPage := 1;
-  FHasMore := True;
+end;
+
+procedure TFrmSiparisler.FormShow(Sender: TObject);
+begin
   LoadOrders;
 end;
 
@@ -105,24 +102,16 @@ var
   I: Integer;
 begin
   FOrders.Clear;
-  FCurrentPage := 1;
-
-  LResponse := ApiService.Get('rest/TSmSiparis/GetSiparisler/1/20/Tumu');
+  LResponse := ApiService.Get('rest/TSmSiparis/GetSiparisler/1/50/Tumu');
   try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LArray) then
     begin
-      LData := TJSONObject(LResponse.Data);
-      if LData.TryGetValue<TJSONArray>('data', LArray) then
+      for I := 0 to LArray.Count - 1 do
       begin
-        for I := 0 to LArray.Count - 1 do
-        begin
-          LOrder := TOrder.Create;
-          LOrder.Id := (LArray.Items[I] as TJSONObject).GetValue<Integer>('siparisId', 0);
-          LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
-          LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
-          LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
-          FOrders.Add(LOrder);
-        end;
+        LOrder := TOrder.Create;
+        LOrder.FromJSON(LArray.Items[I] as TJSONObject);
+        FOrders.Add(LOrder);
       end;
     end;
   finally
@@ -141,38 +130,26 @@ var
   I: Integer;
 begin
   ListViewGelenCagrilar.Items.Clear;
-
   LResponse := ApiService.Get('rest/TSmCallerID/GetSonAramalar/20');
   try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LArray) then
     begin
-      LData := TJSONObject(LResponse.Data);
-      if LData.TryGetValue<TJSONArray>('data', LArray) then
+      for I := 0 to LArray.Count - 1 do
       begin
-        for I := 0 to LArray.Count - 1 do
-        begin
-          LObj := LArray.Items[I] as TJSONObject;
-          LItem := ListViewGelenCagrilar.Items.Add;
-          LItem.Text := LObj.GetValue<string>('cariAdi', LObj.GetValue<string>('telefon', 'Bilinmeyen'));
-          LItem.Detail := LObj.GetValue<string>('telefon', '') + ' - ' +
-                          LObj.GetValue<string>('tarih', '');
-          LItem.Tag := LObj.GetValue<Integer>('aramaLogId', 0);
-          LItem.Data['telefon'] := LObj.GetValue<string>('telefon', '');
-          LItem.Data['cariAdi'] := LObj.GetValue<string>('cariAdi', '');
-        end;
+        LObj := LArray.Items[I] as TJSONObject;
+        LItem := ListViewGelenCagrilar.Items.Add;
+        LItem.Text := LObj.GetValue<string>('cariAdi', LObj.GetValue<string>('telefon', 'Bilinmeyen'));
+        LItem.Detail := LObj.GetValue<string>('telefon', '') + ' - ' +
+                        LObj.GetValue<string>('tarih', '');
+        LItem.Tag := LObj.GetValue<Integer>('aramaLogId', 0);
+        LItem.Data['telefon'] := LObj.GetValue<string>('telefon', '');
+        LItem.Data['cariAdi'] := LObj.GetValue<string>('cariAdi', '');
       end;
     end;
   finally
     LResponse.Free;
   end;
-end;
-
-procedure TFrmSiparisler.LoadMoreOrders;
-begin
-  if not FHasMore then Exit;
-  Inc(FCurrentPage);
-  // Load next page via API
-  ApplyFilter;
 end;
 
 procedure TFrmSiparisler.ApplyFilter;
@@ -186,11 +163,8 @@ begin
     LOrder := FOrders[I];
     case FCurrentFilter of
       sfTumu: FFilteredOrders.Add(LOrder);
-      sfHazirlaniyor:
-        if LOrder.Durum = osHazirlaniyor then
-          FFilteredOrders.Add(LOrder);
-      sfYolda:
-        if LOrder.Durum = osYolda then
+      sfBeklemede:
+        if LOrder.Durum = osBeklemede then
           FFilteredOrders.Add(LOrder);
       sfTeslimEdildi:
         if LOrder.Durum = osTeslimEdildi then
@@ -263,15 +237,13 @@ const
   COLOR_ACTIVE = $FFFFFFFF;
 begin
   BtnFilterTumu.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  BtnFilterHazirlaniyor.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  BtnFilterYolda.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  BtnFilterBeklemede.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
   BtnFilterTeslim.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
   BtnFilterIptal.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
 
   case FCurrentFilter of
     sfTumu: BtnFilterTumu.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    sfHazirlaniyor: BtnFilterHazirlaniyor.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    sfYolda: BtnFilterYolda.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
+    sfBeklemede: BtnFilterBeklemede.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
     sfTeslimEdildi: BtnFilterTeslim.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
     sfIptal: BtnFilterIptal.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
   end;
@@ -279,9 +251,12 @@ end;
 
 procedure TFrmSiparisler.CreateOrderFromCall(AAramaLogID: Integer;
   const ATelefon, ACariAdi: string);
+var
+  LForm: TFrmYeniSiparis;
 begin
-  FrmYeniSiparis.SetFromIncomingCall(AAramaLogID, ATelefon, ACariAdi);
-  FrmYeniSiparis.Show;
+  LForm := TFrmYeniSiparis.Create(Application);
+  LForm.SetFromIncomingCall(AAramaLogID, ATelefon, ACariAdi);
+  LForm.Show;
 end;
 
 procedure TFrmSiparisler.TabControlMainChange(Sender: TObject);
@@ -300,14 +275,9 @@ begin
   SetFilter(sfTumu);
 end;
 
-procedure TFrmSiparisler.BtnFilterHazirlaniyorClick(Sender: TObject);
+procedure TFrmSiparisler.BtnFilterBeklemedeClick(Sender: TObject);
 begin
-  SetFilter(sfHazirlaniyor);
-end;
-
-procedure TFrmSiparisler.BtnFilterYoldaClick(Sender: TObject);
-begin
-  SetFilter(sfYolda);
+  SetFilter(sfBeklemede);
 end;
 
 procedure TFrmSiparisler.BtnFilterTeslimClick(Sender: TObject);
@@ -329,7 +299,7 @@ end;
 procedure TFrmSiparisler.ListViewOrdersItemClick(const Sender: TObject;
   const AItem: TListViewItem);
 begin
-  // Open order detail
+  // TODO: Order detail
 end;
 
 procedure TFrmSiparisler.ListViewGelenCagrilarItemClick(const Sender: TObject;

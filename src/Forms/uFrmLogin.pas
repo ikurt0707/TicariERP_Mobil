@@ -32,12 +32,14 @@ type
     procedure BtnGirisClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+    FLoginSuccess: Boolean;
     procedure DoLogin;
     procedure ShowError(const AMessage: string);
     procedure ClearError;
     procedure SaveCredentials;
     procedure LoadCredentials;
   public
+    property LoginSuccess: Boolean read FLoginSuccess;
   end;
 
 var
@@ -48,10 +50,11 @@ implementation
 {$R *.fmx}
 
 uses
-  uApiService, uAuthService, uFrmMain;
+  uApiService, uAuthService;
 
 procedure TFrmLogin.FormCreate(Sender: TObject);
 begin
+  FLoginSuccess := False;
   LblVersion.Text := 'v' + APP_VERSION;
   ClearError;
   LoadCredentials;
@@ -66,8 +69,10 @@ end;
 procedure TFrmLogin.DoLogin;
 var
   LResponse: TApiResponse;
+  LRoot: TJSONObject;
   LData: TJSONObject;
-  LUser, LTenant, LDb: TJSONObject;
+  LUser, LTenant: TJSONObject;
+  LResultArray: TJSONArray;
   LToken: string;
 begin
   if EdtKullaniciAdi.Text.Trim = '' then
@@ -101,13 +106,33 @@ begin
         Exit;
       end;
 
-      // DataSnap result wrapper'dan veriyi cikar
-      LData := ExtractDSResult(LResponse);
-      if not Assigned(LData) then
+      if not (LResponse.Data is TJSONObject) then
+      begin
+        ShowError('Gecersiz sunucu yaniti');
+        Exit;
+      end;
+
+      LRoot := TJSONObject(LResponse.Data);
+
+      if not LRoot.TryGetValue<TJSONArray>('result', LResultArray) then
       begin
         ShowError('Sunucu result bos dondu');
         Exit;
       end;
+
+      if (LResultArray = nil) or (LResultArray.Count = 0) then
+      begin
+        ShowError('Sunucu result bos dondu');
+        Exit;
+      end;
+
+      if not (LResultArray.Items[0] is TJSONObject) then
+      begin
+        ShowError('Gecersiz login yaniti');
+        Exit;
+      end;
+
+      LData := TJSONObject(LResultArray.Items[0]);
 
       if not LData.GetValue<Boolean>('success', False) then
       begin
@@ -124,10 +149,8 @@ begin
 
       ApiService.SetToken(LToken);
 
-      // Extract user info
       LUser := LData.GetValue<TJSONObject>('user');
       if Assigned(LUser) then
-      begin
         AuthService.SetUserInfo(
           LUser.GetValue<Integer>('userId', 0),
           LUser.GetValue<string>('kullaniciAdi', ''),
@@ -135,9 +158,7 @@ begin
           LUser.GetValue<Integer>('rolId', 0),
           LUser.GetValue<Boolean>('kurye', False)
         );
-      end;
 
-      // Extract tenant info
       LTenant := LData.GetValue<TJSONObject>('tenant');
       if Assigned(LTenant) then
         AuthService.SetTenantInfo(
@@ -148,8 +169,8 @@ begin
       if ChkBeniHatirla.IsChecked then
         SaveCredentials;
 
-      FrmMain.Show;
-      Self.Hide;
+      FLoginSuccess := True;
+      Close;
     finally
       LResponse.Free;
     end;
@@ -170,14 +191,12 @@ end;
 
 procedure TFrmLogin.SaveCredentials;
 begin
-  // Save to SharedPreferences/IsolatedStorage
-  // Platform-specific implementation
+  // Platform-specific
 end;
 
 procedure TFrmLogin.LoadCredentials;
 begin
-  // Load from SharedPreferences/IsolatedStorage
-  // Platform-specific implementation
+  // Platform-specific
 end;
 
 end.

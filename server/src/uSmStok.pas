@@ -28,6 +28,9 @@ type
 
     /// <summary>Kategoriye gore urunler</summary>
     function GetStokByKategori(AKategoriID: Integer): TJSONObject;
+
+    /// <summary>Yeni stok ekle (otomatik kod)</summary>
+    function CreateStok(AStokJson: string): TJSONObject;
   end;
   {$METHODINFO OFF}
 
@@ -276,6 +279,54 @@ begin
     Result.AddPair('data', LArray);
   finally
     LQuery.Free;
+  end;
+end;
+
+function TSmStok.CreateStok(AStokJson: string): TJSONObject;
+var
+  LQuery: TFDQuery;
+  LJson: TJSONObject;
+  LNewID: Integer;
+  LNewKod: string;
+begin
+  Result := TJSONObject.Create;
+  LJson := TJSONObject.ParseJSONValue(AStokJson) as TJSONObject;
+  if LJson = nil then
+  begin
+    Result.AddPair('success', TJSONBool.Create(False));
+    Result.AddPair('message', 'Gecersiz JSON');
+    Exit;
+  end;
+
+  LQuery := DM.GetQuery;
+  try
+    // Otomatik StokKod olustur
+    LQuery.SQL.Text := 'SELECT ISNULL(MAX(CAST(REPLACE(StokKod, ''STK'', '''') AS INT)), 0) + 1 AS NextKod FROM Stok WHERE StokKod LIKE ''STK%''';
+    LQuery.Open;
+    LNewKod := 'STK' + FormatFloat('00000', LQuery.FieldByName('NextKod').AsInteger);
+    LQuery.Close;
+
+    LQuery.SQL.Text :=
+      'INSERT INTO Stok (StokKod, StokAdi, Birim, AlisFiyat, SatisFiyat, KDV, ' +
+      '  Kategori, Aktif, OlusturmaTarih, HizliSiparisAktif) ' +
+      'VALUES (:StokKod, :StokAdi, ''Adet'', :AlisFiyat, :SatisFiyat, 0, ' +
+      '  :Kategori, 1, GETDATE(), 1); ' +
+      'SELECT SCOPE_IDENTITY() AS NewID';
+    LQuery.ParamByName('StokKod').AsString := LNewKod;
+    LQuery.ParamByName('StokAdi').AsString := LJson.GetValue<string>('stokAdi', '');
+    LQuery.ParamByName('AlisFiyat').AsCurrency := LJson.GetValue<Double>('alisFiyat', 0);
+    LQuery.ParamByName('SatisFiyat').AsCurrency := LJson.GetValue<Double>('satisFiyat', 0);
+    LQuery.ParamByName('Kategori').AsString := LJson.GetValue<string>('kategori', '');
+    LQuery.Open;
+
+    LNewID := LQuery.FieldByName('NewID').AsInteger;
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('stokId', TJSONNumber.Create(LNewID));
+    Result.AddPair('stokKod', LNewKod);
+    Result.AddPair('message', 'Stok basariyla eklendi');
+  finally
+    LQuery.Free;
+    LJson.Free;
   end;
 end;
 

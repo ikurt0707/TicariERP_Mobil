@@ -3,7 +3,7 @@ unit uContactService;
 interface
 
 uses
-  System.SysUtils, System.Classes
+  System.SysUtils, System.Classes, System.JSON
   {$IFDEF ANDROID}
   , Androidapi.JNI.JavaTypes
   , Androidapi.JNI.GraphicsContentViewText
@@ -37,6 +37,7 @@ type
     function UpdateContact(const APhoneNumber: string; const AContact: TContactInfo): Boolean;
     function ContactExists(const APhoneNumber: string): Boolean;
     function SaveCustomerAsContact(ACariID: Integer; const AAdSoyad, ATelefon, AAdres, AFirma: string): Boolean;
+    function GetAllPhoneContacts: TJSONArray;
   end;
 
 var
@@ -183,6 +184,54 @@ begin
   LContact.Notes := 'CariID: ' + IntToStr(ACariID) + ' - TicariERP';
   Result := SaveContact(LContact);
 end;
+
+function TContactService.GetAllPhoneContacts: TJSONArray;
+{$IFDEF ANDROID}
+var
+  LCursor: JCursor;
+  LUri: Jnet_Uri;
+  LProjection: TJavaObjectArray<JString>;
+  LNameIdx, LPhoneIdx: Integer;
+  LObj: TJSONObject;
+  LName, LPhone: string;
+begin
+  Result := TJSONArray.Create;
+  if not HasContactsPermission then
+  begin
+    RequestContactsPermission;
+    Exit;
+  end;
+
+  LProjection := TJavaObjectArray<JString>.Create(2);
+  LProjection[0] := StringToJString('display_name');
+  LProjection[1] := StringToJString('data1');
+
+  LUri := TJContactsContract_CommonDataKinds_Phone.JavaClass.CONTENT_URI;
+  LCursor := TAndroidHelper.Context.getContentResolver.query(LUri, LProjection, nil, nil, nil);
+  if Assigned(LCursor) then
+  begin
+    LNameIdx := LCursor.getColumnIndex(StringToJString('display_name'));
+    LPhoneIdx := LCursor.getColumnIndex(StringToJString('data1'));
+    while LCursor.moveToNext do
+    begin
+      LName := JStringToString(LCursor.getString(LNameIdx));
+      LPhone := JStringToString(LCursor.getString(LPhoneIdx));
+      if (LName <> '') and (LPhone <> '') then
+      begin
+        LObj := TJSONObject.Create;
+        LObj.AddPair('adSoyad', LName);
+        LObj.AddPair('telefon', LPhone);
+        Result.AddElement(LObj);
+      end;
+    end;
+    LCursor.close;
+  end;
+end;
+{$ELSE}
+begin
+  Result := TJSONArray.Create;
+end;
+{$ENDIF}
 
 {$IFDEF ANDROID}
 function TContactService.HasContactsPermission: Boolean;
