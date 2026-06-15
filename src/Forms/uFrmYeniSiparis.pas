@@ -4,60 +4,42 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  System.JSON, System.Math,
+  System.JSON, System.Generics.Collections, System.Math,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Memo,
-  System.Generics.Collections,
-  uCustomer, uOrder, uProduct, uConstants;
+  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls,
+  FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.Edit, FMX.Memo,
+  uCustomer, uOrder, uConstants;
 
 type
+  TSepetItem = record
+    StokID: Integer;
+    StokAdi: string;
+    BirimFiyat: Currency;
+    Miktar: Integer;
+    function Toplam: Currency;
+  end;
+
   TFrmYeniSiparis = class(TForm)
     LayoutMain: TLayout;
     LayoutHeader: TLayout;
     RectHeader: TRectangle;
     BtnBack: TSpeedButton;
     LblHeaderTitle: TLabel;
+    LayoutContent: TLayout;
     ScrollContent: TVertScrollBox;
-    LayoutMusteriSec: TLayout;
-    RectMusteriSec: TRectangle;
-    LayoutMusteriInfo: TLayout;
+    LayoutMusteri: TLayout;
     LblMusteriLabel: TLabel;
+    LayoutMusteriSec: TLayout;
     LblMusteriAdi: TLabel;
-    BtnMusteriSec: TSpeedButton;
-    LayoutProducts: TLayout;
-    LblUrunlerTitle: TLabel;
-    RectProductList: TRectangle;
-    LayoutProduct1: TLayout;
-    LblProduct1Name: TLabel;
-    LblProduct1Price: TLabel;
-    LayoutProduct1Qty: TLayout;
-    BtnProduct1Minus: TCornerButton;
-    LblProduct1Qty: TLabel;
-    BtnProduct1Plus: TCornerButton;
-    Line1: TLine;
-    LayoutProduct2: TLayout;
-    LblProduct2Name: TLabel;
-    LblProduct2Price: TLabel;
-    LayoutProduct2Qty: TLayout;
-    BtnProduct2Minus: TCornerButton;
-    LblProduct2Qty: TLabel;
-    BtnProduct2Plus: TCornerButton;
-    Line2: TLine;
-    LayoutProduct3: TLayout;
-    LblProduct3Name: TLabel;
-    LblProduct3Price: TLabel;
-    LayoutProduct3Qty: TLayout;
-    BtnProduct3Minus: TCornerButton;
-    LblProduct3Qty: TLabel;
-    BtnProduct3Plus: TCornerButton;
-    Line3: TLine;
-    LayoutProduct4: TLayout;
-    LblProduct4Name: TLabel;
-    LblProduct4Price: TLabel;
-    LayoutProduct4Qty: TLayout;
-    BtnProduct4Minus: TCornerButton;
-    LblProduct4Qty: TLabel;
-    BtnProduct4Plus: TCornerButton;
+    BtnMusteriSec: TCornerButton;
+    LayoutUrunArama: TLayout;
+    LblUrunLabel: TLabel;
+    EdtUrunArama: TEdit;
+    ListViewUrunler: TListView;
+    LayoutSepet: TLayout;
+    LblSepetLabel: TLabel;
+    ListViewSepet: TListView;
     LayoutNot: TLayout;
     LblNotTitle: TLabel;
     RectNot: TRectangle;
@@ -70,35 +52,25 @@ type
     BtnSiparisiKaydet: TCornerButton;
     procedure BtnBackClick(Sender: TObject);
     procedure BtnMusteriSecClick(Sender: TObject);
-    procedure BtnProduct1MinusClick(Sender: TObject);
-    procedure BtnProduct1PlusClick(Sender: TObject);
-    procedure BtnProduct2MinusClick(Sender: TObject);
-    procedure BtnProduct2PlusClick(Sender: TObject);
-    procedure BtnProduct3MinusClick(Sender: TObject);
-    procedure BtnProduct3PlusClick(Sender: TObject);
-    procedure BtnProduct4MinusClick(Sender: TObject);
-    procedure BtnProduct4PlusClick(Sender: TObject);
     procedure BtnSiparisiKaydetClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+    procedure EdtUrunAramaChangeTracking(Sender: TObject);
+    procedure ListViewUrunlerItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
   private
-    FCustomer: TCustomer;
-    FQuantities: array[0..3] of Integer;
-    FPrices: array[0..3] of Currency;
+    FSepet: TList<TSepetItem>;
     FAramaLogID: Integer;
     FCariID: Integer;
+    FSearchTimer: TTimer;
     procedure UpdateTotal;
-    procedure UpdateQuantityLabel(AIndex: Integer);
-    procedure ChangeQuantity(AIndex, ADelta: Integer);
-    function ValidateOrder: Boolean;
-    function GetToplamTutar: Currency;
-    procedure LoadProductsFromServer;
+    procedure UpdateSepetListView;
+    procedure SearchProducts(const AQuery: string);
+    procedure OnSearchTimer(Sender: TObject);
     procedure OnMusteriSelected(ACariID: Integer; const ACariAdi, ATelefon: string);
+    procedure AddToSepet(AStokID: Integer; const AStokAdi: string; AFiyat: Currency);
   public
-    procedure SetCustomer(ACustomer: TCustomer);
     procedure SetFromIncomingCall(AAramaLogID: Integer; const ATelefon, ACariAdi: string);
     procedure ResetForm;
-    property ToplamTutar: Currency read GetToplamTutar;
   end;
 
 var
@@ -111,79 +83,39 @@ implementation
 uses
   uApiService, uHelpers, uFrmMusteriSec;
 
+{ TSepetItem }
+
+function TSepetItem.Toplam: Currency;
+begin
+  Result := BirimFiyat * Miktar;
+end;
+
+{ TFrmYeniSiparis }
+
 procedure TFrmYeniSiparis.FormCreate(Sender: TObject);
 begin
-  FCustomer := nil;
+  FSepet := TList<TSepetItem>.Create;
   FAramaLogID := 0;
   FCariID := 0;
-  FQuantities[0] := 0;
-  FQuantities[1] := 0;
-  FQuantities[2] := 0;
-  FQuantities[3] := 0;
-  LoadProductsFromServer;
+
+  FSearchTimer := TTimer.Create(Self);
+  FSearchTimer.Interval := 500;
+  FSearchTimer.Enabled := False;
+  FSearchTimer.OnTimer := OnSearchTimer;
 end;
 
-procedure TFrmYeniSiparis.FormDestroy(Sender: TObject);
+procedure TFrmYeniSiparis.ResetForm;
 begin
-  if Assigned(FCustomer) then
-    FCustomer.Free;
-end;
-
-procedure TFrmYeniSiparis.LoadProductsFromServer;
-var
-  LResponse: TApiResponse;
-  LData: TJSONObject;
-  LArray: TJSONArray;
-  LObj: TJSONObject;
-  I: Integer;
-  LLabels: array[0..3] of TLabel;
-  LPriceLabels: array[0..3] of TLabel;
-begin
-  LLabels[0] := LblProduct1Name;
-  LLabels[1] := LblProduct2Name;
-  LLabels[2] := LblProduct3Name;
-  LLabels[3] := LblProduct4Name;
-  LPriceLabels[0] := LblProduct1Price;
-  LPriceLabels[1] := LblProduct2Price;
-  LPriceLabels[2] := LblProduct3Price;
-  LPriceLabels[3] := LblProduct4Price;
-
-  LResponse := ApiService.Get('rest/TSmStok/GetHizliSiparisUrunler/');
-  try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
-    begin
-      LData := TJSONObject(LResponse.Data);
-      if LData.TryGetValue<TJSONArray>('data', LArray) then
-      begin
-        for I := 0 to Min(LArray.Count - 1, 3) do
-        begin
-          LObj := LArray.Items[I] as TJSONObject;
-          LLabels[I].Text := LObj.GetValue<string>('stokAdi', '');
-          FPrices[I] := LObj.GetValue<Double>('satisFiyat', 0);
-          LPriceLabels[I].Text := THelpers.FormatCurrency(FPrices[I]);
-        end;
-      end;
-    end
-    else
-    begin
-      // Fallback defaults
-      FPrices[0] := 60.00;
-      FPrices[1] := 150.00;
-      FPrices[2] := 1.00;
-      FPrices[3] := 2.50;
-    end;
-  finally
-    LResponse.Free;
-  end;
-end;
-
-procedure TFrmYeniSiparis.SetCustomer(ACustomer: TCustomer);
-begin
-  if Assigned(FCustomer) then
-    FreeAndNil(FCustomer);
-  FCustomer := ACustomer.Clone;
-  FCariID := FCustomer.Id;
-  LblMusteriAdi.Text := FCustomer.AdSoyad;
+  FAramaLogID := 0;
+  FCariID := 0;
+  FSepet.Clear;
+  MemoNot.Text := '';
+  LblMusteriAdi.Text := 'Musteri seciniz';
+  LblHeaderTitle.Text := 'Yeni Siparis';
+  EdtUrunArama.Text := '';
+  ListViewUrunler.Items.Clear;
+  UpdateSepetListView;
+  UpdateTotal;
 end;
 
 procedure TFrmYeniSiparis.SetFromIncomingCall(AAramaLogID: Integer;
@@ -191,29 +123,11 @@ procedure TFrmYeniSiparis.SetFromIncomingCall(AAramaLogID: Integer;
 begin
   ResetForm;
   FAramaLogID := AAramaLogID;
-  LblMusteriAdi.Text := ACariAdi;
-  if ACariAdi = '' then
+  if ACariAdi <> '' then
+    LblMusteriAdi.Text := ACariAdi
+  else
     LblMusteriAdi.Text := ATelefon + ' (Kayitsiz)';
   LblHeaderTitle.Text := 'Yeni Siparis (Gelen Cagri)';
-end;
-
-procedure TFrmYeniSiparis.ResetForm;
-var
-  I: Integer;
-begin
-  FAramaLogID := 0;
-  FCariID := 0;
-  if Assigned(FCustomer) then
-    FreeAndNil(FCustomer);
-  for I := 0 to 3 do
-  begin
-    FQuantities[I] := 0;
-    UpdateQuantityLabel(I);
-  end;
-  MemoNot.Text := '';
-  LblMusteriAdi.Text := 'Musteri seciniz';
-  LblHeaderTitle.Text := 'Yeni Siparis';
-  UpdateTotal;
 end;
 
 procedure TFrmYeniSiparis.OnMusteriSelected(ACariID: Integer;
@@ -223,53 +137,125 @@ begin
   LblMusteriAdi.Text := ACariAdi;
 end;
 
-procedure TFrmYeniSiparis.ChangeQuantity(AIndex, ADelta: Integer);
+procedure TFrmYeniSiparis.EdtUrunAramaChangeTracking(Sender: TObject);
 begin
-  FQuantities[AIndex] := FQuantities[AIndex] + ADelta;
-  if FQuantities[AIndex] < 0 then
-    FQuantities[AIndex] := 0;
-  UpdateQuantityLabel(AIndex);
+  FSearchTimer.Enabled := False;
+  FSearchTimer.Enabled := True;
+end;
+
+procedure TFrmYeniSiparis.OnSearchTimer(Sender: TObject);
+begin
+  FSearchTimer.Enabled := False;
+  if EdtUrunArama.Text.Length >= 2 then
+    SearchProducts(EdtUrunArama.Text)
+  else
+    ListViewUrunler.Items.Clear;
+end;
+
+procedure TFrmYeniSiparis.SearchProducts(const AQuery: string);
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+  LArray: TJSONArray;
+  LItem: TListViewItem;
+  LObj: TJSONObject;
+  I: Integer;
+begin
+  ListViewUrunler.Items.Clear;
+  LResponse := ApiService.Get('rest/TSmStok/SearchStok/' + AQuery);
+  try
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LArray) then
+    begin
+      for I := 0 to LArray.Count - 1 do
+      begin
+        LObj := LArray.Items[I] as TJSONObject;
+        LItem := ListViewUrunler.Items.Add;
+        LItem.Text := LObj.GetValue<string>('stokAdi', '');
+        LItem.Detail := THelpers.FormatCurrency(LObj.GetValue<Double>('satisFiyat', 0)) +
+                        ' | ' + LObj.GetValue<string>('kategori', '');
+        LItem.Tag := LObj.GetValue<Integer>('stokId', 0);
+        LItem.Data['fiyat'] := LObj.GetValue<Double>('satisFiyat', 0);
+        LItem.Data['stokAdi'] := LObj.GetValue<string>('stokAdi', '');
+      end;
+    end;
+  finally
+    LResponse.Free;
+  end;
+end;
+
+procedure TFrmYeniSiparis.ListViewUrunlerItemClick(const Sender: TObject;
+  const AItem: TListViewItem);
+var
+  LStokID: Integer;
+  LStokAdi: string;
+  LFiyat: Double;
+  LFiyatStr: string;
+begin
+  LStokID := AItem.Tag;
+  LStokAdi := AItem.Data['stokAdi'].ToString;
+  LFiyat := Double(AItem.Data['fiyat'].AsExtended);
+
+  LFiyatStr := FloatToStr(LFiyat);
+  if InputQuery('Fiyat', 'Birim fiyat (degistirebilirsiniz):', LFiyatStr) then
+  begin
+    LFiyat := StrToFloatDef(LFiyatStr, LFiyat);
+    AddToSepet(LStokID, LStokAdi, LFiyat);
+  end;
+end;
+
+procedure TFrmYeniSiparis.AddToSepet(AStokID: Integer; const AStokAdi: string; AFiyat: Currency);
+var
+  I: Integer;
+  LItem: TSepetItem;
+begin
+  for I := 0 to FSepet.Count - 1 do
+  begin
+    if FSepet[I].StokID = AStokID then
+    begin
+      LItem := FSepet[I];
+      LItem.Miktar := LItem.Miktar + 1;
+      LItem.BirimFiyat := AFiyat;
+      FSepet[I] := LItem;
+      UpdateSepetListView;
+      UpdateTotal;
+      Exit;
+    end;
+  end;
+
+  LItem.StokID := AStokID;
+  LItem.StokAdi := AStokAdi;
+  LItem.BirimFiyat := AFiyat;
+  LItem.Miktar := 1;
+  FSepet.Add(LItem);
+  UpdateSepetListView;
   UpdateTotal;
 end;
 
-procedure TFrmYeniSiparis.UpdateQuantityLabel(AIndex: Integer);
+procedure TFrmYeniSiparis.UpdateSepetListView;
+var
+  I: Integer;
+  LItem: TListViewItem;
 begin
-  case AIndex of
-    0: LblProduct1Qty.Text := IntToStr(FQuantities[0]);
-    1: LblProduct2Qty.Text := IntToStr(FQuantities[1]);
-    2: LblProduct3Qty.Text := IntToStr(FQuantities[2]);
-    3: LblProduct4Qty.Text := IntToStr(FQuantities[3]);
+  ListViewSepet.Items.Clear;
+  for I := 0 to FSepet.Count - 1 do
+  begin
+    LItem := ListViewSepet.Items.Add;
+    LItem.Text := FSepet[I].StokAdi + ' x' + IntToStr(FSepet[I].Miktar);
+    LItem.Detail := THelpers.FormatCurrency(FSepet[I].Toplam);
+    LItem.Tag := I;
   end;
 end;
 
 procedure TFrmYeniSiparis.UpdateTotal;
-begin
-  LblToplamTutar.Text := THelpers.FormatCurrency(GetToplamTutar);
-end;
-
-function TFrmYeniSiparis.GetToplamTutar: Currency;
 var
   I: Integer;
+  LTotal: Currency;
 begin
-  Result := 0;
-  for I := 0 to 3 do
-    Result := Result + (FQuantities[I] * FPrices[I]);
-end;
-
-function TFrmYeniSiparis.ValidateOrder: Boolean;
-var
-  I: Integer;
-  LHasItem: Boolean;
-begin
-  LHasItem := False;
-  for I := 0 to 3 do
-    if FQuantities[I] > 0 then
-    begin
-      LHasItem := True;
-      Break;
-    end;
-
-  Result := (FCariID > 0) and LHasItem;
+  LTotal := 0;
+  for I := 0 to FSepet.Count - 1 do
+    LTotal := LTotal + FSepet[I].Toplam;
+  LblToplamTutar.Text := THelpers.FormatCurrency(LTotal);
 end;
 
 procedure TFrmYeniSiparis.BtnBackClick(Sender: TObject);
@@ -278,49 +264,12 @@ begin
 end;
 
 procedure TFrmYeniSiparis.BtnMusteriSecClick(Sender: TObject);
+var
+  LForm: TFrmMusteriSec;
 begin
-  FrmMusteriSec.OnMusteriSelected := OnMusteriSelected;
-  FrmMusteriSec.Show;
-end;
-
-procedure TFrmYeniSiparis.BtnProduct1MinusClick(Sender: TObject);
-begin
-  ChangeQuantity(0, -1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct1PlusClick(Sender: TObject);
-begin
-  ChangeQuantity(0, 1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct2MinusClick(Sender: TObject);
-begin
-  ChangeQuantity(1, -1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct2PlusClick(Sender: TObject);
-begin
-  ChangeQuantity(1, 1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct3MinusClick(Sender: TObject);
-begin
-  ChangeQuantity(2, -1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct3PlusClick(Sender: TObject);
-begin
-  ChangeQuantity(2, 1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct4MinusClick(Sender: TObject);
-begin
-  ChangeQuantity(3, -1);
-end;
-
-procedure TFrmYeniSiparis.BtnProduct4PlusClick(Sender: TObject);
-begin
-  ChangeQuantity(3, 1);
+  LForm := TFrmMusteriSec.Create(Application);
+  LForm.OnMusteriSelected := OnMusteriSelected;
+  LForm.Show;
 end;
 
 procedure TFrmYeniSiparis.BtnSiparisiKaydetClick(Sender: TObject);
@@ -329,19 +278,19 @@ var
   LItems: TJSONArray;
   LItem: TJSONObject;
   LResponse: TApiResponse;
+  LData: TJSONObject;
   I: Integer;
-  LNames: array[0..3] of string;
 begin
-  if not ValidateOrder then
+  if FCariID <= 0 then
   begin
-    ShowMessage('Lutfen musteri secin ve en az bir urun ekleyin.');
+    ShowMessage('Lutfen musteri seciniz.');
     Exit;
   end;
-
-  LNames[0] := LblProduct1Name.Text;
-  LNames[1] := LblProduct2Name.Text;
-  LNames[2] := LblProduct3Name.Text;
-  LNames[3] := LblProduct4Name.Text;
+  if FSepet.Count = 0 then
+  begin
+    ShowMessage('Lutfen en az bir urun ekleyiniz.');
+    Exit;
+  end;
 
   LBody := TJSONObject.Create;
   try
@@ -356,22 +305,21 @@ begin
     end;
 
     LItems := TJSONArray.Create;
-    for I := 0 to 3 do
+    for I := 0 to FSepet.Count - 1 do
     begin
-      if FQuantities[I] > 0 then
-      begin
-        LItem := TJSONObject.Create;
-        LItem.AddPair('stokAdi', LNames[I]);
-        LItem.AddPair('miktar', TJSONNumber.Create(FQuantities[I]));
-        LItem.AddPair('birimFiyat', TJSONNumber.Create(Double(FPrices[I])));
-        LItems.AddElement(LItem);
-      end;
+      LItem := TJSONObject.Create;
+      LItem.AddPair('stokId', TJSONNumber.Create(FSepet[I].StokID));
+      LItem.AddPair('stokAdi', FSepet[I].StokAdi);
+      LItem.AddPair('miktar', TJSONNumber.Create(FSepet[I].Miktar));
+      LItem.AddPair('birimFiyat', TJSONNumber.Create(Double(FSepet[I].BirimFiyat)));
+      LItems.AddElement(LItem);
     end;
     LBody.AddPair('items', LItems);
 
     LResponse := ApiService.Post('rest/TSmSiparis/CreateSiparis/', LBody);
     try
-      if LResponse.Success then
+      LData := ExtractDSResult(LResponse);
+      if Assigned(LData) and LData.GetValue<Boolean>('success', False) then
       begin
         ShowMessage('Siparis basariyla kaydedildi!');
         ResetForm;

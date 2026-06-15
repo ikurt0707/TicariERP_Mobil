@@ -10,6 +10,7 @@ uses
   uFrmKuryeTakip in 'src\Forms\uFrmKuryeTakip.pas' {FrmKuryeTakip},
   uFrmSiparisler in 'src\Forms\uFrmSiparisler.pas' {FrmSiparisler},
   uFrmMusteriSec in 'src\Forms\uFrmMusteriSec.pas' {FrmMusteriSec},
+  uFrmStoklar in 'src\Forms\uFrmStoklar.pas' {FrmStoklar},
   uCustomer in 'src\Models\uCustomer.pas',
   uOrder in 'src\Models\uOrder.pas',
   uProduct in 'src\Models\uProduct.pas',
@@ -30,12 +31,6 @@ uses
 
 begin
   Application.Initialize;
-  Application.CreateForm(TFrmLogin, FrmLogin);
   Application.CreateForm(TFrmMain, FrmMain);
-  Application.CreateForm(TFrmYeniSiparis, FrmYeniSiparis);
-  Application.CreateForm(TFrmSiparisler, FrmSiparisler);
-  Application.CreateForm(TFrmKuryeTakip, FrmKuryeTakip);
-  Application.CreateForm(TFrmGelenArama, FrmGelenArama);
-  Application.CreateForm(TFrmMusteriSec, FrmMusteriSec);
   Application.Run;
 end.

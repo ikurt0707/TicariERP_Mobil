@@ -1,7 +1,7 @@
-object FrmGelenArama: TFrmGelenArama
+object FrmStoklar: TFrmStoklar
   Left = 0
   Top = 0
-  Caption = 'Gelen Cagrilar'
+  Caption = 'Stoklar'
   ClientHeight = 844
   ClientWidth = 390
   Fill.Color = xFFF5F5F5
@@ -24,7 +24,7 @@ object FrmGelenArama: TFrmGelenArama
       Size.PlatformDefault = False
       object RectHeader: TRectangle
         Align = Client
-        Fill.Color = xFF1565C0
+        Fill.Color = xFF795548
         Stroke.Kind = None
         object BtnBack: TSpeedButton
           Align = Left
@@ -43,29 +43,57 @@ object FrmGelenArama: TFrmGelenArama
           TextSettings.Font.Style = [fsBold]
           TextSettings.FontColor = claWhite
           TextSettings.HorzAlign = Center
-          Text = 'Gelen Cagrilar'
+          Text = 'Stoklar'
+        end
+        object BtnStokEkle: TSpeedButton
+          Align = Right
+          Size.Width = 56.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          Text = '+'
+          StyledSettings = [Family]
+          TextSettings.Font.Size = 22.000000000000000000
+          TextSettings.FontColor = claWhite
+          OnClick = BtnStokEkleClick
         end
       end
     end
-    object ListViewAramalar: TListView
-      Align = Client
+    object LayoutSearch: TLayout
+      Align = Top
       Position.Y = 56.000000000000000000
       Size.Width = 390.000000000000000000
-      Size.Height = 788.000000000000000000
+      Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
-      OnItemClick = ListViewAramalarItemClick
+      Margins.Left = 12.000000000000000000
+      Margins.Right = 12.000000000000000000
+      Margins.Top = 8.000000000000000000
+      object EdtSearch: TEdit
+        Align = Client
+        Size.Width = 366.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        TextPrompt = 'Stok ara...'
+        OnChangeTracking = EdtSearchChangeTracking
+      end
     end
-    object LayoutDetail: TLayout
+    object ListViewStoklar: TListView
+      Align = Client
+      Position.Y = 112.000000000000000000
+      Size.Width = 390.000000000000000000
+      Size.Height = 732.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object LayoutEklePanel: TLayout
       Align = Bottom
       Size.Width = 390.000000000000000000
-      Size.Height = 380.000000000000000000
+      Size.Height = 360.000000000000000000
       Size.PlatformDefault = False
       Visible = False
-      object RectDetail: TRectangle
+      object RectEklePanel: TRectangle
         Align = Client
         Fill.Color = claWhite
         Stroke.Color = xFFE0E0E0
-        object LblDetailTitle: TLabel
+        object LblEkleTitle: TLabel
           Align = Top
           Margins.Left = 16.000000000000000000
           Margins.Top = 12.000000000000000000
@@ -75,67 +103,90 @@ object FrmGelenArama: TFrmGelenArama
           StyledSettings = [Family]
           TextSettings.Font.Size = 16.000000000000000000
           TextSettings.Font.Style = [fsBold]
-          Text = 'Cagri Detay'
+          Text = 'Yeni Stok Ekle'
         end
-        object LblCariAdi: TLabel
+        object LblStokAdiLabel: TLabel
           Align = Top
           Margins.Left = 16.000000000000000000
           Margins.Top = 8.000000000000000000
           Position.Y = 44.000000000000000000
           Size.Width = 358.000000000000000000
-          Size.Height = 22.000000000000000000
+          Size.Height = 18.000000000000000000
           Size.PlatformDefault = False
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 15.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          Text = ''
+          Text = 'Stok Adi'
         end
-        object LblTelefon: TLabel
+        object EdtStokAdi: TEdit
           Align = Top
           Margins.Left = 16.000000000000000000
-          Position.Y = 66.000000000000000000
+          Margins.Right = 16.000000000000000000
+          Position.Y = 62.000000000000000000
+          Size.Width = 358.000000000000000000
+          Size.Height = 36.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = 'Stok adi girin'
+        end
+        object LblAlisFiyatLabel: TLabel
+          Align = Top
+          Margins.Left = 16.000000000000000000
+          Margins.Top = 6.000000000000000000
+          Position.Y = 104.000000000000000000
           Size.Width = 358.000000000000000000
           Size.Height = 18.000000000000000000
           Size.PlatformDefault = False
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 13.000000000000000000
-          TextSettings.FontColor = xFF757575
-          Text = ''
+          Text = 'Alis Fiyati'
         end
-        object LblAdres: TLabel
+        object EdtAlisFiyat: TEdit
           Align = Top
           Margins.Left = 16.000000000000000000
-          Position.Y = 84.000000000000000000
+          Margins.Right = 16.000000000000000000
+          Position.Y = 122.000000000000000000
+          Size.Width = 358.000000000000000000
+          Size.Height = 36.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = '0.00'
+          KeyboardType = DecimalNumberPad
+        end
+        object LblSatisFiyatLabel: TLabel
+          Align = Top
+          Margins.Left = 16.000000000000000000
+          Margins.Top = 6.000000000000000000
+          Position.Y = 164.000000000000000000
           Size.Width = 358.000000000000000000
           Size.Height = 18.000000000000000000
           Size.PlatformDefault = False
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 13.000000000000000000
-          TextSettings.FontColor = xFF757575
-          Text = ''
+          Text = 'Satis Fiyati'
         end
-        object LblSonSiparisTitle: TLabel
+        object EdtSatisFiyat: TEdit
           Align = Top
           Margins.Left = 16.000000000000000000
-          Margins.Top = 8.000000000000000000
-          Position.Y = 110.000000000000000000
+          Margins.Right = 16.000000000000000000
+          Position.Y = 182.000000000000000000
           Size.Width = 358.000000000000000000
-          Size.Height = 20.000000000000000000
+          Size.Height = 36.000000000000000000
           Size.PlatformDefault = False
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 13.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          Text = 'Son 2 Siparis'
+          TextPrompt = '0.00'
+          KeyboardType = DecimalNumberPad
         end
-        object ListViewSonSiparisler: TListView
+        object LblKategoriLabel: TLabel
           Align = Top
-          Margins.Top = 4.000000000000000000
-          Position.Y = 134.000000000000000000
-          Size.Width = 390.000000000000000000
-          Size.Height = 120.000000000000000000
+          Margins.Left = 16.000000000000000000
+          Margins.Top = 6.000000000000000000
+          Position.Y = 224.000000000000000000
+          Size.Width = 358.000000000000000000
+          Size.Height = 18.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Kategori'
+        end
+        object CmbKategori: TComboBox
+          Align = Top
+          Margins.Left = 16.000000000000000000
+          Margins.Right = 16.000000000000000000
+          Position.Y = 242.000000000000000000
+          Size.Width = 358.000000000000000000
+          Size.Height = 36.000000000000000000
           Size.PlatformDefault = False
         end
-        object BtnSiparisOlustur: TCornerButton
+        object BtnKaydet: TCornerButton
           Align = Bottom
           Margins.Left = 16.000000000000000000
           Margins.Right = 106.000000000000000000
@@ -143,12 +194,12 @@ object FrmGelenArama: TFrmGelenArama
           Size.Width = 268.000000000000000000
           Size.Height = 44.000000000000000000
           Size.PlatformDefault = False
-          Text = 'Siparis Olustur'
+          Text = 'Kaydet'
           XRadius = 8.000000000000000000
           YRadius = 8.000000000000000000
-          OnClick = BtnSiparisOlusturClick
+          OnClick = BtnKaydetClick
         end
-        object BtnDetailKapat: TCornerButton
+        object BtnIptal: TCornerButton
           Align = Bottom
           Margins.Right = 16.000000000000000000
           Margins.Bottom = 12.000000000000000000
@@ -156,10 +207,10 @@ object FrmGelenArama: TFrmGelenArama
           Size.Width = 90.000000000000000000
           Size.Height = 44.000000000000000000
           Size.PlatformDefault = False
-          Text = 'Kapat'
+          Text = 'Iptal'
           XRadius = 8.000000000000000000
           YRadius = 8.000000000000000000
-          OnClick = BtnDetailKapatClick
+          OnClick = BtnIptalClick
         end
       end
     end

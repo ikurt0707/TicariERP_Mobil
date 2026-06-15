@@ -25,6 +25,9 @@ type
 
     /// <summary>Son gelen aramalar</summary>
     function GetSonAramalar(ALimit: Integer): TJSONObject;
+
+    /// <summary>Cari'nin son N siparisini getir</summary>
+    function GetCariSonSiparisler(ACariID, ALimit: Integer): TJSONObject;
   end;
   {$METHODINFO OFF}
 
@@ -250,6 +253,45 @@ begin
       LObj.AddPair('cariAdi', LQuery.FieldByName('CariAdi').AsString);
       LObj.AddPair('eventTipi', LQuery.FieldByName('EventTipi').AsString);
       LObj.AddPair('tarih', DateToISO8601(LQuery.FieldByName('OlusmaTarih').AsDateTime));
+      LArray.AddElement(LObj);
+      LQuery.Next;
+    end;
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('data', LArray);
+  finally
+    LQuery.Free;
+  end;
+end;
+
+function TSmCallerID.GetCariSonSiparisler(ACariID, ALimit: Integer): TJSONObject;
+var
+  LQuery: TFDQuery;
+  LArray: TJSONArray;
+  LObj: TJSONObject;
+begin
+  Result := TJSONObject.Create;
+  LArray := TJSONArray.Create;
+  if ALimit < 1 then ALimit := 2;
+
+  LQuery := DM.GetQuery;
+  try
+    LQuery.SQL.Text :=
+      'SELECT TOP(:Limit) s.SiparisID, s.Durum, s.GenelToplam, s.OlusturmaTarih ' +
+      'FROM TupSuSiparisBaslik s ' +
+      'WHERE s.CariID = :CariID ' +
+      'ORDER BY s.OlusturmaTarih DESC';
+    LQuery.ParamByName('Limit').AsInteger := ALimit;
+    LQuery.ParamByName('CariID').AsInteger := ACariID;
+    LQuery.Open;
+
+    while not LQuery.Eof do
+    begin
+      LObj := TJSONObject.Create;
+      LObj.AddPair('siparisId', TJSONNumber.Create(LQuery.FieldByName('SiparisID').AsInteger));
+      LObj.AddPair('durum', LQuery.FieldByName('Durum').AsString);
+      LObj.AddPair('genelToplam', TJSONNumber.Create(LQuery.FieldByName('GenelToplam').AsCurrency));
+      LObj.AddPair('tarih', DateToISO8601(LQuery.FieldByName('OlusturmaTarih').AsDateTime));
       LArray.AddElement(LObj);
       LQuery.Next;
     end;

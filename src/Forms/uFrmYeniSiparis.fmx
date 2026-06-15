@@ -9,6 +9,7 @@ object FrmYeniSiparis: TFrmYeniSiparis
   FormFactor.Height = 844
   FormFactor.Devices = [Desktop, iPhone, iPad]
   DesignerMasterStyle = 0
+  OnCreate = FormCreate
   object LayoutMain: TLayout
     Align = Client
     Size.Width = 390.000000000000000000
@@ -20,425 +21,187 @@ object FrmYeniSiparis: TFrmYeniSiparis
       Size.Width = 390.000000000000000000
       Size.Height = 56.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 0
       object RectHeader: TRectangle
         Align = Client
-        Fill.Color = claWhite
-        Stroke.Color = xFFE0E0E0
-        XRadius = 0.000000000000000000
-        YRadius = 0.000000000000000000
+        Fill.Color = xFF1565C0
+        Stroke.Kind = None
         object BtnBack: TSpeedButton
           Align = Left
-          Margins.Left = 8.000000000000000000
-          Size.Width = 40.000000000000000000
+          Size.Width = 56.000000000000000000
           Size.Height = 56.000000000000000000
           Size.PlatformDefault = False
           Text = '<'
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 24.000000000000000000
+          StyledSettings = [Family, Size]
+          TextSettings.FontColor = claWhite
+          OnClick = BtnBackClick
         end
         object LblHeaderTitle: TLabel
-          Align = Center
-          Size.Width = 200.000000000000000000
-          Size.Height = 56.000000000000000000
-          Size.PlatformDefault = False
+          Align = Client
           StyledSettings = [Family]
           TextSettings.Font.Size = 18.000000000000000000
           TextSettings.Font.Style = [fsBold]
+          TextSettings.FontColor = claWhite
           TextSettings.HorzAlign = Center
           Text = 'Yeni Siparis'
         end
       end
     end
-    object ScrollContent: TVertScrollBox
+    object LayoutContent: TLayout
       Align = Client
       Size.Width = 390.000000000000000000
       Size.Height = 718.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 1
-      object LayoutMusteriSec: TLayout
-        Align = Top
-        Margins.Left = 16.000000000000000000
-        Margins.Top = 16.000000000000000000
-        Margins.Right = 16.000000000000000000
-        Size.Width = 358.000000000000000000
-        Size.Height = 60.000000000000000000
+      object ScrollContent: TVertScrollBox
+        Align = Client
+        Size.Width = 390.000000000000000000
+        Size.Height = 718.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 0
-        object RectMusteriSec: TRectangle
-          Align = Client
-          Fill.Color = claWhite
-          XRadius = 12.000000000000000000
-          YRadius = 12.000000000000000000
-          Stroke.Kind = None
-          object LayoutMusteriInfo: TLayout
-            Align = Client
-            Margins.Left = 16.000000000000000000
-            object LblMusteriLabel: TLabel
-              Align = Top
-              Size.Width = 310.000000000000000000
-              Size.Height = 18.000000000000000000
-              Size.PlatformDefault = False
-              Margins.Top = 8.000000000000000000
-              TextSettings.FontColor = xFF757575
-              TextSettings.Font.Size = 11.000000000000000000
-              Text = 'Musteri'
-            end
-            object LblMusteriAdi: TLabel
-              Align = Top
-              Size.Width = 310.000000000000000000
-              Size.Height = 24.000000000000000000
-              Size.PlatformDefault = False
-              StyledSettings = [Family]
-              TextSettings.Font.Size = 14.000000000000000000
-              TextSettings.Font.Style = [fsBold]
-              Text = 'Musteri Seciniz...'
-            end
-          end
-          object BtnMusteriSec: TSpeedButton
-            Align = Right
-            Margins.Right = 8.000000000000000000
-            Size.Width = 40.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = '>'
-            TextSettings.Font.Size = 18.000000000000000000
-          end
-        end
-      end
-      object LayoutProducts: TLayout
-        Align = Top
-        Margins.Left = 16.000000000000000000
-        Margins.Top = 16.000000000000000000
-        Margins.Right = 16.000000000000000000
-        Size.Width = 358.000000000000000000
-        Size.Height = 350.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 1
-        object LblUrunlerTitle: TLabel
+        object LayoutMusteri: TLayout
           Align = Top
-          Size.Width = 358.000000000000000000
-          Size.Height = 24.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 80.000000000000000000
           Size.PlatformDefault = False
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 16.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          Text = 'Urunler'
-        end
-        object RectProductList: TRectangle
-          Align = Client
+          Margins.Left = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
           Margins.Top = 8.000000000000000000
-          Fill.Color = claWhite
-          XRadius = 12.000000000000000000
-          YRadius = 12.000000000000000000
-          Stroke.Kind = None
-          object LayoutProduct1: TLayout
+          TabOrder = 0
+          object LblMusteriLabel: TLabel
             Align = Top
-            Size.Width = 358.000000000000000000
-            Size.Height = 70.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 20.000000000000000000
             Size.PlatformDefault = False
-            object LblProduct1Name: TLabel
-              Align = Left
-              Margins.Left = 16.000000000000000000
-              Size.Width = 150.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Damacana Su'
-              StyledSettings = [Family]
-              TextSettings.Font.Size = 14.000000000000000000
-            end
-            object LblProduct1Price: TLabel
-              Align = Right
-              Margins.Right = 90.000000000000000000
-              Size.Width = 60.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.FontColor = xFF757575
-              TextSettings.HorzAlign = Trailing
-              Text = '60,00 TL'
-            end
-            object LayoutProduct1Qty: TLayout
-              Align = Right
-              Margins.Right = 8.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              object BtnProduct1Minus: TCornerButton
-                Align = Left
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '-'
-              end
-              object LblProduct1Qty: TLabel
-                Align = Center
-                Size.Width = 24.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.HorzAlign = Center
-                TextSettings.Font.Size = 16.000000000000000000
-                TextSettings.Font.Style = [fsBold]
-                Text = '0'
-              end
-              object BtnProduct1Plus: TCornerButton
-                Align = Right
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '+'
-              end
-            end
-          end
-          object Line1: TLine
-            Align = Top
-            Margins.Left = 16.000000000000000000
-            Margins.Right = 16.000000000000000000
-            Size.Width = 326.000000000000000000
-            Size.Height = 1.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFEEEEEE
-          end
-          object LayoutProduct2: TLayout
-            Align = Top
-            Size.Width = 358.000000000000000000
-            Size.Height = 70.000000000000000000
-            Size.PlatformDefault = False
-            object LblProduct2Name: TLabel
-              Align = Left
-              Margins.Left = 16.000000000000000000
-              Size.Width = 150.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Su Pompasi'
-              StyledSettings = [Family]
-              TextSettings.Font.Size = 14.000000000000000000
-            end
-            object LblProduct2Price: TLabel
-              Align = Right
-              Margins.Right = 90.000000000000000000
-              Size.Width = 60.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.FontColor = xFF757575
-              TextSettings.HorzAlign = Trailing
-              Text = '150,00 TL'
-            end
-            object LayoutProduct2Qty: TLayout
-              Align = Right
-              Margins.Right = 8.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              object BtnProduct2Minus: TCornerButton
-                Align = Left
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '-'
-              end
-              object LblProduct2Qty: TLabel
-                Align = Center
-                Size.Width = 24.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.HorzAlign = Center
-                TextSettings.Font.Size = 16.000000000000000000
-                TextSettings.Font.Style = [fsBold]
-                Text = '0'
-              end
-              object BtnProduct2Plus: TCornerButton
-                Align = Right
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '+'
-              end
-            end
-          end
-          object Line2: TLine
-            Align = Top
-            Margins.Left = 16.000000000000000000
-            Margins.Right = 16.000000000000000000
-            Size.Width = 326.000000000000000000
-            Size.Height = 1.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFEEEEEE
-          end
-          object LayoutProduct3: TLayout
-            Align = Top
-            Size.Width = 358.000000000000000000
-            Size.Height = 70.000000000000000000
-            Size.PlatformDefault = False
-            object LblProduct3Name: TLabel
-              Align = Left
-              Margins.Left = 16.000000000000000000
-              Size.Width = 150.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Bardak Su 200ml'
-              StyledSettings = [Family]
-              TextSettings.Font.Size = 14.000000000000000000
-            end
-            object LblProduct3Price: TLabel
-              Align = Right
-              Margins.Right = 90.000000000000000000
-              Size.Width = 60.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.FontColor = xFF757575
-              TextSettings.HorzAlign = Trailing
-              Text = '1,00 TL'
-            end
-            object LayoutProduct3Qty: TLayout
-              Align = Right
-              Margins.Right = 8.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              object BtnProduct3Minus: TCornerButton
-                Align = Left
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '-'
-              end
-              object LblProduct3Qty: TLabel
-                Align = Center
-                Size.Width = 24.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.HorzAlign = Center
-                TextSettings.Font.Size = 16.000000000000000000
-                TextSettings.Font.Style = [fsBold]
-                Text = '0'
-              end
-              object BtnProduct3Plus: TCornerButton
-                Align = Right
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '+'
-              end
-            end
-          end
-          object Line3: TLine
-            Align = Top
-            Margins.Left = 16.000000000000000000
-            Margins.Right = 16.000000000000000000
-            Size.Width = 326.000000000000000000
-            Size.Height = 1.000000000000000000
-            Size.PlatformDefault = False
-            Stroke.Color = xFFEEEEEE
-          end
-          object LayoutProduct4: TLayout
-            Align = Top
-            Size.Width = 358.000000000000000000
-            Size.Height = 70.000000000000000000
-            Size.PlatformDefault = False
-            object LblProduct4Name: TLabel
-              Align = Left
-              Margins.Left = 16.000000000000000000
-              Size.Width = 150.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Soda 330ml'
-              StyledSettings = [Family]
-              TextSettings.Font.Size = 14.000000000000000000
-            end
-            object LblProduct4Price: TLabel
-              Align = Right
-              Margins.Right = 90.000000000000000000
-              Size.Width = 60.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              TextSettings.FontColor = xFF757575
-              TextSettings.HorzAlign = Trailing
-              Text = '2,50 TL'
-            end
-            object LayoutProduct4Qty: TLayout
-              Align = Right
-              Margins.Right = 8.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 70.000000000000000000
-              Size.PlatformDefault = False
-              object BtnProduct4Minus: TCornerButton
-                Align = Left
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '-'
-              end
-              object LblProduct4Qty: TLabel
-                Align = Center
-                Size.Width = 24.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                TextSettings.HorzAlign = Center
-                TextSettings.Font.Size = 16.000000000000000000
-                TextSettings.Font.Style = [fsBold]
-                Text = '0'
-              end
-              object BtnProduct4Plus: TCornerButton
-                Align = Right
-                Margins.Top = 20.000000000000000000
-                Margins.Bottom = 20.000000000000000000
-                Size.Width = 28.000000000000000000
-                Size.Height = 30.000000000000000000
-                Size.PlatformDefault = False
-                Text = '+'
-              end
-            end
-          end
-        end
-      end
-      object LayoutNot: TLayout
-        Align = Top
-        Margins.Left = 16.000000000000000000
-        Margins.Top = 16.000000000000000000
-        Margins.Right = 16.000000000000000000
-        Size.Width = 358.000000000000000000
-        Size.Height = 100.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 2
-        object LblNotTitle: TLabel
-          Align = Top
-          Size.Width = 358.000000000000000000
-          Size.Height = 20.000000000000000000
-          Size.PlatformDefault = False
-          TextSettings.FontColor = xFF757575
-          Text = 'Siparis Notu'
-        end
-        object RectNot: TRectangle
-          Align = Client
-          Margins.Top = 4.000000000000000000
-          Fill.Color = claWhite
-          XRadius = 8.000000000000000000
-          YRadius = 8.000000000000000000
-          Stroke.Color = xFFE0E0E0
-          object MemoNot: TMemo
-            Align = Client
-            Margins.Left = 8.000000000000000000
-            Margins.Top = 4.000000000000000000
-            Margins.Right = 8.000000000000000000
-            Margins.Bottom = 4.000000000000000000
-            Size.Width = 342.000000000000000000
-            Size.Height = 68.000000000000000000
-            Size.PlatformDefault = False
+            StyledSettings = [Family]
             TextSettings.Font.Size = 13.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            Text = 'Musteri'
+          end
+          object LayoutMusteriSec: TLayout
+            Align = Top
+            Position.Y = 20.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 44.000000000000000000
+            Size.PlatformDefault = False
+            object LblMusteriAdi: TLabel
+              Align = Client
+              Size.Width = 256.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              StyledSettings = [Family]
+              TextSettings.Font.Size = 14.000000000000000000
+              Text = 'Musteri seciniz'
+            end
+            object BtnMusteriSec: TCornerButton
+              Align = Right
+              Size.Width = 110.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Musteri Sec'
+              OnClick = BtnMusteriSecClick
+            end
+          end
+        end
+        object LayoutUrunArama: TLayout
+          Align = Top
+          Position.Y = 88.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 70.000000000000000000
+          Size.PlatformDefault = False
+          Margins.Left = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
+          TabOrder = 1
+          object LblUrunLabel: TLabel
+            Align = Top
+            Size.Width = 366.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 13.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            Text = 'Urun Ara'
+          end
+          object EdtUrunArama: TEdit
+            Align = Top
+            Position.Y = 20.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            TextPrompt = 'Urun adi veya barkod ile ara...'
+            OnChangeTracking = EdtUrunAramaChangeTracking
+          end
+        end
+        object ListViewUrunler: TListView
+          Align = Top
+          Position.Y = 158.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 180.000000000000000000
+          Size.PlatformDefault = False
+          OnItemClick = ListViewUrunlerItemClick
+        end
+        object LayoutSepet: TLayout
+          Align = Top
+          Position.Y = 338.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 200.000000000000000000
+          Size.PlatformDefault = False
+          Margins.Left = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
+          Margins.Top = 8.000000000000000000
+          TabOrder = 3
+          object LblSepetLabel: TLabel
+            Align = Top
+            Size.Width = 366.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 13.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            Text = 'Sepet'
+          end
+          object ListViewSepet: TListView
+            Align = Client
+            Position.Y = 20.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 180.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+        object LayoutNot: TLayout
+          Align = Top
+          Position.Y = 546.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 100.000000000000000000
+          Size.PlatformDefault = False
+          Margins.Left = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
+          Margins.Top = 8.000000000000000000
+          TabOrder = 4
+          object LblNotTitle: TLabel
+            Align = Top
+            Size.Width = 366.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 13.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            Text = 'Not'
+          end
+          object RectNot: TRectangle
+            Align = Client
+            Position.Y = 20.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 80.000000000000000000
+            Size.PlatformDefault = False
+            Fill.Color = claWhite
+            Stroke.Color = xFFE0E0E0
+            XRadius = 6.000000000000000000
+            YRadius = 6.000000000000000000
+            object MemoNot: TMemo
+              Align = Client
+              Size.Width = 366.000000000000000000
+              Size.Height = 80.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 13.000000000000000000
+            end
           end
         end
       end
@@ -448,53 +211,46 @@ object FrmYeniSiparis: TFrmYeniSiparis
       Size.Width = 390.000000000000000000
       Size.Height = 70.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 2
       object RectFooter: TRectangle
         Align = Client
         Fill.Color = claWhite
-        Stroke.Color = xFFE0E0E0
-        XRadius = 0.000000000000000000
-        YRadius = 0.000000000000000000
+        Stroke.Kind = None
         object LayoutTotal: TLayout
           Align = Left
-          Margins.Left = 16.000000000000000000
-          Size.Width = 150.000000000000000000
+          Size.Width = 200.000000000000000000
           Size.Height = 70.000000000000000000
           Size.PlatformDefault = False
+          Margins.Left = 16.000000000000000000
           object LblToplamLabel: TLabel
             Align = Top
-            Margins.Top = 12.000000000000000000
-            Size.Width = 150.000000000000000000
-            Size.Height = 18.000000000000000000
+            Size.Width = 184.000000000000000000
+            Size.Height = 20.000000000000000000
             Size.PlatformDefault = False
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 12.000000000000000000
             TextSettings.FontColor = xFF757575
-            TextSettings.Font.Size = 11.000000000000000000
             Text = 'Toplam'
           end
           object LblToplamTutar: TLabel
-            Align = Top
-            Size.Width = 150.000000000000000000
-            Size.Height = 28.000000000000000000
-            Size.PlatformDefault = False
+            Align = Client
             StyledSettings = [Family]
             TextSettings.Font.Size = 20.000000000000000000
             TextSettings.Font.Style = [fsBold]
-            TextSettings.FontColor = xFF1565C0
             Text = '0,00 TL'
           end
         end
         object BtnSiparisiKaydet: TCornerButton
           Align = Right
-          Margins.Top = 12.000000000000000000
-          Margins.Right = 16.000000000000000000
-          Margins.Bottom = 12.000000000000000000
-          Size.Width = 160.000000000000000000
-          Size.Height = 46.000000000000000000
+          Margins.Top = 10.000000000000000000
+          Margins.Right = 12.000000000000000000
+          Margins.Bottom = 10.000000000000000000
+          Size.Width = 150.000000000000000000
+          Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
-          Text = 'Siparisi Kaydet'
-          TextSettings.FontColor = claWhite
-          XRadius = 23.000000000000000000
-          YRadius = 23.000000000000000000
+          Text = 'Kaydet'
+          XRadius = 8.000000000000000000
+          YRadius = 8.000000000000000000
+          OnClick = BtnSiparisiKaydetClick
         end
       end
     end

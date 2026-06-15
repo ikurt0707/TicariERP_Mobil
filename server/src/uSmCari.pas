@@ -40,6 +40,12 @@ type
 
     /// <summary>Cari hareketleri listele</summary>
     function GetCariHareketler(ACariID: Integer; APage, APageSize: Integer): TJSONObject;
+
+    /// <summary>Mobil musteri ekle (otomatik kod, CariTipi=Alici, CariAdres kaydeder)</summary>
+    function CreateCariMobil(ACariJson: string): TJSONObject;
+
+    /// <summary>Telefon rehberinden toplu musteri aktar</summary>
+    function ImportContacts(AContactsJson: string): TJSONObject;
   end;
   {$METHODINFO OFF}
 
@@ -471,6 +477,167 @@ begin
     Result.AddPair('data', LArray);
   finally
     LQuery.Free;
+  end;
+end;
+
+function TSmCari.CreateCariMobil(ACariJson: string): TJSONObject;
+var
+  LQuery: TFDQuery;
+  LJson: TJSONObject;
+  LNewID: Integer;
+  LNewKod: string;
+  LTelefon, LAdres: string;
+begin
+  Result := TJSONObject.Create;
+  LJson := TJSONObject.ParseJSONValue(ACariJson) as TJSONObject;
+  if LJson = nil then
+  begin
+    Result.AddPair('success', TJSONBool.Create(False));
+    Result.AddPair('message', 'Gecersiz JSON');
+    Exit;
+  end;
+
+  LTelefon := LJson.GetValue<string>('telefon', '');
+  LAdres := LJson.GetValue<string>('adres', '');
+
+  LQuery := DM.GetQuery;
+  try
+    // Otomatik CariKod
+    LQuery.SQL.Text := 'SELECT ISNULL(MAX(CAST(REPLACE(CariKod, ''CR'', '''') AS INT)), 0) + 1 AS NextKod FROM Cari WHERE CariKod LIKE ''CR%''';
+    LQuery.Open;
+    LNewKod := 'CR' + FormatFloat('00000', LQuery.FieldByName('NextKod').AsInteger);
+    LQuery.Close;
+
+    // Cari insert
+    LQuery.SQL.Text :=
+      'INSERT INTO Cari (CariKod, CariAdi, CariTip, Aktif, OlusturmaTarih) ' +
+      'VALUES (:CariKod, :CariAdi, ''Alici'', 1, GETDATE()); ' +
+      'SELECT SCOPE_IDENTITY() AS NewID';
+    LQuery.ParamByName('CariKod').AsString := LNewKod;
+    LQuery.ParamByName('CariAdi').AsString := LJson.GetValue<string>('cariAdi', '');
+    LQuery.Open;
+    LNewID := LQuery.FieldByName('NewID').AsInteger;
+    LQuery.Close;
+
+    // Telefon ekle
+    if LTelefon <> '' then
+    begin
+      LQuery.SQL.Text :=
+        'INSERT INTO CariTelefon (CariID, TelefonTipi, Telefon, Varsayilan, Aktif) ' +
+        'VALUES (:CariID, ''Cep'', :Telefon, 1, 1)';
+      LQuery.ParamByName('CariID').AsInteger := LNewID;
+      LQuery.ParamByName('Telefon').AsString := LTelefon;
+      LQuery.ExecSQL;
+    end;
+
+    // Adres ekle
+    if LAdres <> '' then
+    begin
+      LQuery.SQL.Text :=
+        'INSERT INTO CariAdres (CariID, AdresTipi, AdresSatiri, Varsayilan, Aktif) ' +
+        'VALUES (:CariID, ''Teslimat'', :Adres, 1, 1)';
+      LQuery.ParamByName('CariID').AsInteger := LNewID;
+      LQuery.ParamByName('Adres').AsString := LAdres;
+      LQuery.ExecSQL;
+    end;
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('cariId', TJSONNumber.Create(LNewID));
+    Result.AddPair('cariKod', LNewKod);
+    Result.AddPair('message', 'Musteri basariyla eklendi');
+  finally
+    LQuery.Free;
+    LJson.Free;
+  end;
+end;
+
+function TSmCari.ImportContacts(AContactsJson: string): TJSONObject;
+var
+  LQuery: TFDQuery;
+  LJson, LContact: TJSONObject;
+  LArray: TJSONArray;
+  LRoot: TJSONValue;
+  I, LEklenen: Integer;
+  LNewKod, LAdSoyad, LTelefon: string;
+  LNewID: Integer;
+begin
+  Result := TJSONObject.Create;
+  LEklenen := 0;
+
+  LRoot := TJSONObject.ParseJSONValue(AContactsJson);
+  if LRoot = nil then
+  begin
+    Result.AddPair('success', TJSONBool.Create(False));
+    Result.AddPair('message', 'Gecersiz JSON');
+    Exit;
+  end;
+
+  if LRoot is TJSONObject then
+    LArray := TJSONObject(LRoot).GetValue<TJSONArray>('contacts')
+  else if LRoot is TJSONArray then
+    LArray := TJSONArray(LRoot)
+  else
+  begin
+    Result.AddPair('success', TJSONBool.Create(False));
+    Result.AddPair('message', 'Gecersiz format');
+    LRoot.Free;
+    Exit;
+  end;
+
+  LQuery := DM.GetQuery;
+  try
+    for I := 0 to LArray.Count - 1 do
+    begin
+      LContact := LArray.Items[I] as TJSONObject;
+      LAdSoyad := LContact.GetValue<string>('adSoyad', '');
+      LTelefon := LContact.GetValue<string>('telefon', '');
+
+      if (LAdSoyad = '') or (LTelefon = '') then
+        Continue;
+
+      // Telefon zaten var mi kontrol
+      LQuery.SQL.Text := 'SELECT COUNT(*) AS Cnt FROM CariTelefon WHERE Telefon = :Tel';
+      LQuery.ParamByName('Tel').AsString := LTelefon;
+      LQuery.Open;
+      if LQuery.FieldByName('Cnt').AsInteger > 0 then
+      begin
+        LQuery.Close;
+        Continue;
+      end;
+      LQuery.Close;
+
+      // Otomatik CariKod
+      LQuery.SQL.Text := 'SELECT ISNULL(MAX(CAST(REPLACE(CariKod, ''CR'', '''') AS INT)), 0) + 1 AS NextKod FROM Cari WHERE CariKod LIKE ''CR%''';
+      LQuery.Open;
+      LNewKod := 'CR' + FormatFloat('00000', LQuery.FieldByName('NextKod').AsInteger);
+      LQuery.Close;
+
+      LQuery.SQL.Text :=
+        'INSERT INTO Cari (CariKod, CariAdi, CariTip, Aktif, OlusturmaTarih) ' +
+        'VALUES (:CariKod, :CariAdi, ''Alici'', 1, GETDATE()); ' +
+        'SELECT SCOPE_IDENTITY() AS NewID';
+      LQuery.ParamByName('CariKod').AsString := LNewKod;
+      LQuery.ParamByName('CariAdi').AsString := LAdSoyad;
+      LQuery.Open;
+      LNewID := LQuery.FieldByName('NewID').AsInteger;
+      LQuery.Close;
+
+      LQuery.SQL.Text :=
+        'INSERT INTO CariTelefon (CariID, TelefonTipi, Telefon, Varsayilan, Aktif) ' +
+        'VALUES (:CariID, ''Cep'', :Telefon, 1, 1)';
+      LQuery.ParamByName('CariID').AsInteger := LNewID;
+      LQuery.ParamByName('Telefon').AsString := LTelefon;
+      LQuery.ExecSQL;
+
+      Inc(LEklenen);
+    end;
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('eklenen', TJSONNumber.Create(LEklenen));
+    Result.AddPair('message', IntToStr(LEklenen) + ' kisi eklendi');
+  finally
+    LQuery.Free;
+    LRoot.Free;
   end;
 end;
 

@@ -4,11 +4,12 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.JSON,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.ListView,
-  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
-  System.Generics.Collections,
-  uCustomer, uOrder, uConstants;
+  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls,
+  FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base,
+  uConstants;
 
 type
   TFrmGelenArama = class(TForm)
@@ -16,62 +17,34 @@ type
     LayoutHeader: TLayout;
     RectHeader: TRectangle;
     BtnBack: TSpeedButton;
-    LblHeaderTitle: TLabel;
-    ScrollContent: TVertScrollBox;
-    LayoutCustomerCard: TLayout;
-    RectCustomerCard: TRectangle;
-    LayoutCustomerTop: TLayout;
-    CircleAvatar: TCircle;
-    LblAvatar: TLabel;
-    LayoutCustomerInfo: TLayout;
-    LblCustomerName: TLabel;
-    LblCustomerPhone: TLabel;
-    RectKayitliTag: TRectangle;
-    LblKayitliTag: TLabel;
-    LayoutCustomerDetails: TGridPanelLayout;
-    LayoutBakiye: TLayout;
-    LblBakiyeTitle: TLabel;
-    LblBakiyeValue: TLabel;
-    LayoutSonSiparis: TLayout;
+    LblTitle: TLabel;
+    ListViewAramalar: TListView;
+    LayoutDetail: TLayout;
+    RectDetail: TRectangle;
+    LblDetailTitle: TLabel;
+    LblCariAdi: TLabel;
+    LblTelefon: TLabel;
+    LblAdres: TLabel;
     LblSonSiparisTitle: TLabel;
-    LblSonSiparisValue: TLabel;
-    LayoutToplamHarcama: TLayout;
-    LblToplamHarcamaTitle: TLabel;
-    LblToplamHarcamaValue: TLabel;
-    LayoutToplamSiparis: TLayout;
-    LblToplamSiparisTitle: TLabel;
-    LblToplamSiparisValue: TLabel;
-    LayoutActionButtons: TLayout;
-    BtnSiparisAc: TCornerButton;
-    BtnWhatsApp: TCornerButton;
-    BtnAra: TCornerButton;
-    BtnHaritadaGoster: TCornerButton;
-    LayoutSonSiparisler: TLayout;
-    LayoutSonSipHeader: TLayout;
-    LblSonSiparislerTitle: TLabel;
-    BtnTumu: TSpeedButton;
     ListViewSonSiparisler: TListView;
-    BtnAramayiKaydet: TCornerButton;
+    BtnSiparisOlustur: TCornerButton;
+    BtnDetailKapat: TCornerButton;
     procedure BtnBackClick(Sender: TObject);
-    procedure BtnSiparisAcClick(Sender: TObject);
-    procedure BtnWhatsAppClick(Sender: TObject);
-    procedure BtnAraClick(Sender: TObject);
-    procedure BtnHaritadaGosterClick(Sender: TObject);
-    procedure BtnAramayiKaydetClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure ListViewAramalarItemClick(const Sender: TObject;
+      const AItem: TListViewItem);
+    procedure BtnSiparisOlusturClick(Sender: TObject);
+    procedure BtnDetailKapatClick(Sender: TObject);
   private
-    FCustomer: TCustomer;
-    FRecentOrders: TOrderList;
-    FPhoneNumber: string;
-    procedure LoadCustomerByPhone(const APhone: string);
-    procedure LoadRecentOrders;
-    procedure UpdateCustomerUI;
-    procedure UpdateOrdersUI;
+    FSelectedAramaLogID: Integer;
+    FSelectedTelefon: string;
+    FSelectedCariAdi: string;
+    FSelectedCariID: Integer;
+    procedure LoadAramalar;
+    procedure ShowCallDetail(AAramaLogID: Integer; const ATelefon: string);
+    procedure ShowDetailPanel(AVisible: Boolean);
   public
-    procedure ShowForPhone(const APhone: string);
-    property Customer: TCustomer read FCustomer;
-    property PhoneNumber: string read FPhoneNumber;
   end;
 
 var
@@ -82,136 +55,153 @@ implementation
 {$R *.fmx}
 
 uses
-  uApiService, uCustomerService, uOrderService, uHelpers,
-  uFrmYeniSiparis, uContactService;
+  uApiService, uHelpers, uFrmYeniSiparis;
 
 procedure TFrmGelenArama.FormCreate(Sender: TObject);
 begin
-  FCustomer := nil;
-  FRecentOrders := TOrderList.Create(True);
-  FPhoneNumber := '';
+  FSelectedAramaLogID := 0;
+  FSelectedCariID := 0;
+  LayoutDetail.Visible := False;
 end;
 
-procedure TFrmGelenArama.FormDestroy(Sender: TObject);
+procedure TFrmGelenArama.FormShow(Sender: TObject);
 begin
-  if Assigned(FCustomer) then
-    FCustomer.Free;
-  FRecentOrders.Free;
+  LoadAramalar;
 end;
 
-procedure TFrmGelenArama.ShowForPhone(const APhone: string);
+procedure TFrmGelenArama.LoadAramalar;
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+  LArray: TJSONArray;
+  LItem: TListViewItem;
+  LObj: TJSONObject;
+  I: Integer;
 begin
-  FPhoneNumber := APhone;
-  LoadCustomerByPhone(APhone);
-  LoadRecentOrders;
-  UpdateCustomerUI;
-  UpdateOrdersUI;
-end;
-
-procedure TFrmGelenArama.LoadCustomerByPhone(const APhone: string);
-begin
-  if Assigned(FCustomer) then
-    FreeAndNil(FCustomer);
-  FCustomer := CustomerService.GetCustomerByPhone(APhone);
-end;
-
-procedure TFrmGelenArama.LoadRecentOrders;
-begin
-  FRecentOrders.Clear;
-  if Assigned(FCustomer) then
-  begin
-    FRecentOrders.Free;
-    FRecentOrders := OrderService.GetOrdersByCustomer(FCustomer.Id);
+  ListViewAramalar.Items.Clear;
+  LResponse := ApiService.Get('rest/TSmCallerID/GetSonAramalar/50');
+  try
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LArray) then
+    begin
+      for I := 0 to LArray.Count - 1 do
+      begin
+        LObj := LArray.Items[I] as TJSONObject;
+        LItem := ListViewAramalar.Items.Add;
+        LItem.Text := LObj.GetValue<string>('cariAdi', LObj.GetValue<string>('telefon', 'Bilinmeyen'));
+        LItem.Detail := LObj.GetValue<string>('telefon', '') + ' - ' +
+                        LObj.GetValue<string>('tarih', '');
+        LItem.Tag := LObj.GetValue<Integer>('aramaLogId', 0);
+        LItem.Data['telefon'] := LObj.GetValue<string>('telefon', '');
+        LItem.Data['cariAdi'] := LObj.GetValue<string>('cariAdi', '');
+      end;
+    end;
+  finally
+    LResponse.Free;
   end;
 end;
 
-procedure TFrmGelenArama.UpdateCustomerUI;
+procedure TFrmGelenArama.ListViewAramalarItemClick(const Sender: TObject;
+  const AItem: TListViewItem);
 begin
-  if Assigned(FCustomer) then
-  begin
-    LblCustomerName.Text := FCustomer.AdSoyad;
-    LblCustomerPhone.Text := THelpers.FormatPhone(FCustomer.Telefon);
-    LblAvatar.Text := FCustomer.GetInitials;
-    LblBakiyeValue.Text := FCustomer.GetFormattedBakiye;
-    LblSonSiparisValue.Text := THelpers.DateToDisplayStr(FCustomer.SonSiparisTarihi);
-    LblToplamHarcamaValue.Text := FCustomer.GetFormattedToplamHarcama;
-    LblToplamSiparisValue.Text := IntToStr(FCustomer.ToplamSiparis);
+  FSelectedAramaLogID := AItem.Tag;
+  FSelectedTelefon := '';
+  FSelectedCariAdi := '';
+  if Assigned(AItem.Data['telefon']) then
+    FSelectedTelefon := AItem.Data['telefon'].ToString;
+  if Assigned(AItem.Data['cariAdi']) then
+    FSelectedCariAdi := AItem.Data['cariAdi'].ToString;
+  ShowCallDetail(FSelectedAramaLogID, FSelectedTelefon);
+end;
 
-    if FCustomer.IsKayitli then
+procedure TFrmGelenArama.ShowCallDetail(AAramaLogID: Integer; const ATelefon: string);
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+  LCari: TJSONObject;
+  LSiparisler: TJSONArray;
+  LItem: TListViewItem;
+  LObj: TJSONObject;
+  I: Integer;
+begin
+  LblCariAdi.Text := '';
+  LblTelefon.Text := ATelefon;
+  LblAdres.Text := '';
+  ListViewSonSiparisler.Items.Clear;
+  FSelectedCariID := 0;
+
+  // Cari bilgisini telefon ile bul
+  LResponse := ApiService.Get('rest/TSmCari/GetCariByTelefon/' + ATelefon);
+  try
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.GetValue<Boolean>('found', False) then
     begin
-      LblKayitliTag.Text := 'Kayitli Musteri';
-      RectKayitliTag.Fill.Color := TAlphaColor($FFE8F5E9);
-      LblKayitliTag.TextSettings.FontColor := TAlphaColor($FF4CAF50);
+      LCari := LData.GetValue<TJSONObject>('data');
+      if Assigned(LCari) then
+      begin
+        FSelectedCariID := LCari.GetValue<Integer>('cariId', 0);
+        FSelectedCariAdi := LCari.GetValue<string>('cariAdi', '');
+        LblCariAdi.Text := FSelectedCariAdi;
+        LblAdres.Text := LCari.GetValue<string>('adres', '');
+      end;
     end
     else
     begin
-      LblKayitliTag.Text := 'Kayitsiz';
-      RectKayitliTag.Fill.Color := TAlphaColor($FFFBE9E7);
-      LblKayitliTag.TextSettings.FontColor := TAlphaColor($FFF44336);
+      LblCariAdi.Text := 'Kayitsiz Musteri';
+    end;
+  finally
+    LResponse.Free;
+  end;
+
+  // Son 2 siparis
+  if FSelectedCariID > 0 then
+  begin
+    LResponse := ApiService.Get('rest/TSmCallerID/GetCariSonSiparisler/' +
+                                IntToStr(FSelectedCariID) + '/2');
+    try
+      LData := ExtractDSResult(LResponse);
+      if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LSiparisler) then
+      begin
+        for I := 0 to LSiparisler.Count - 1 do
+        begin
+          LObj := LSiparisler.Items[I] as TJSONObject;
+          LItem := ListViewSonSiparisler.Items.Add;
+          LItem.Text := LObj.GetValue<string>('tarih', '') + ' - ' +
+                        LObj.GetValue<string>('durum', '');
+          LItem.Detail := THelpers.FormatCurrency(LObj.GetValue<Double>('genelToplam', 0));
+        end;
+      end;
+    finally
+      LResponse.Free;
     end;
   end;
+
+  ShowDetailPanel(True);
 end;
 
-procedure TFrmGelenArama.UpdateOrdersUI;
-var
-  I: Integer;
-  LItem: TListViewItem;
+procedure TFrmGelenArama.ShowDetailPanel(AVisible: Boolean);
 begin
-  ListViewSonSiparisler.Items.Clear;
-  for I := 0 to FRecentOrders.Count - 1 do
-  begin
-    LItem := ListViewSonSiparisler.Items.Add;
-    LItem.Text := FRecentOrders[I].GetFormattedTarih + '    ' +
-                  FRecentOrders[I].GetItemsSummary;
-    LItem.Detail := FRecentOrders[I].GetFormattedToplam;
-    LItem.Tag := FRecentOrders[I].Id;
-  end;
+  LayoutDetail.Visible := AVisible;
+end;
+
+procedure TFrmGelenArama.BtnSiparisOlusturClick(Sender: TObject);
+var
+  LForm: TFrmYeniSiparis;
+begin
+  LForm := TFrmYeniSiparis.Create(Application);
+  LForm.SetFromIncomingCall(FSelectedAramaLogID, FSelectedTelefon, FSelectedCariAdi);
+  LForm.Show;
+  ShowDetailPanel(False);
+end;
+
+procedure TFrmGelenArama.BtnDetailKapatClick(Sender: TObject);
+begin
+  ShowDetailPanel(False);
 end;
 
 procedure TFrmGelenArama.BtnBackClick(Sender: TObject);
 begin
   Close;
-end;
-
-procedure TFrmGelenArama.BtnSiparisAcClick(Sender: TObject);
-begin
-  if Assigned(FCustomer) then
-    FrmYeniSiparis.SetCustomer(FCustomer);
-  FrmYeniSiparis.Show;
-end;
-
-procedure TFrmGelenArama.BtnWhatsAppClick(Sender: TObject);
-begin
-  // Open WhatsApp with customer number
-end;
-
-procedure TFrmGelenArama.BtnAraClick(Sender: TObject);
-begin
-  // Make phone call
-end;
-
-procedure TFrmGelenArama.BtnHaritadaGosterClick(Sender: TObject);
-begin
-  // Show customer location on map
-end;
-
-procedure TFrmGelenArama.BtnAramayiKaydetClick(Sender: TObject);
-var
-  LResponse: TApiResponse;
-begin
-  LResponse := ApiService.Get('rest/TSmCallerID/LogCallerIdEvent/' + FPhoneNumber);
-  try
-    if LResponse.Success then
-    begin
-      // Also save to contacts if customer exists
-      if Assigned(FCustomer) then
-        ContactService.SaveCustomerAsContact(
-          FCustomer.Id, FCustomer.AdSoyad, FCustomer.Telefon,
-          FCustomer.Adres, '');
-    end;
-  finally
-    LResponse.Free;
-  end;
 end;
 
 end.

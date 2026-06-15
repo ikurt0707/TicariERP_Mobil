@@ -17,9 +17,7 @@ type
     LayoutHeader: TLayout;
     RectHeader: TRectangle;
     LblAppTitle: TLabel;
-    PathMenuIcon: TPath;
     BtnMenu: TSpeedButton;
-    PathNotifIcon: TPath;
     BtnNotification: TSpeedButton;
     LayoutContent: TLayout;
     ScrollContent: TVertScrollBox;
@@ -31,28 +29,20 @@ type
     LayoutQuickActions: TLayout;
     GridActions: TGridPanelLayout;
     RectBtnYeniSiparis: TRectangle;
-    PathIconYeniSiparis: TPath;
     LblBtnYeniSiparis: TLabel;
     RectBtnSiparisler: TRectangle;
-    PathIconSiparisler: TPath;
     LblBtnSiparisler: TLabel;
     RectBtnMusteriler: TRectangle;
-    PathIconMusteriler: TPath;
     LblBtnMusteriler: TLabel;
     RectBtnTahsilat: TRectangle;
-    PathIconTahsilat: TPath;
     LblBtnTahsilat: TLabel;
     RectBtnKuryeTakip: TRectangle;
-    PathIconKuryeTakip: TPath;
     LblBtnKuryeTakip: TLabel;
     RectBtnKasa: TRectangle;
-    PathIconKasa: TPath;
     LblBtnKasa: TLabel;
     RectBtnStoklar: TRectangle;
-    PathIconStoklar: TPath;
     LblBtnStoklar: TLabel;
     RectBtnRaporlar: TRectangle;
-    PathIconRaporlar: TPath;
     LblBtnRaporlar: TLabel;
     LayoutDailySummary: TLayout;
     LblGunlukOzet: TLabel;
@@ -60,19 +50,15 @@ type
     RectSiparis: TRectangle;
     LblSiparisTitle: TLabel;
     LblSiparisCount: TLabel;
-    LblSiparisSubtitle: TLabel;
     RectCiro: TRectangle;
     LblCiroTitle: TLabel;
     LblCiroValue: TLabel;
-    LblCiroSubtitle: TLabel;
     RectTahsilat: TRectangle;
     LblTahsilatTitle: TLabel;
     LblTahsilatValue: TLabel;
-    LblTahsilatSubtitle: TLabel;
     RectBorc: TRectangle;
     LblBorcTitle: TLabel;
     LblBorcValue: TLabel;
-    LblBorcSubtitle: TLabel;
     LayoutRecentOrders: TLayout;
     LayoutRecentHeader: TLayout;
     LblSonSiparisler: TLabel;
@@ -80,47 +66,27 @@ type
     ListViewRecentOrders: TListView;
     LayoutBottomNav: TLayout;
     RectBottomNav: TRectangle;
-    GridBottomNav: TGridPanelLayout;
-    LayoutNavAnaSayfa: TLayout;
-    PathNavAnaSayfa: TPath;
-    LblNavAnaSayfa: TLabel;
-    LayoutNavSiparisler: TLayout;
-    PathNavSiparisler: TPath;
-    LblNavSiparisler: TLabel;
-    LayoutNavYeniSiparis: TLayout;
-    RectNavYeniSiparis: TRectangle;
-    PathNavYeniSiparis: TPath;
-    LayoutNavBildirimler: TLayout;
-    PathNavBildirimler: TPath;
-    LblNavBildirimler: TLabel;
-    LayoutNavAyarlar: TLayout;
-    PathNavAyarlar: TPath;
-    LblNavAyarlar: TLabel;
-    procedure BtnYeniSiparisClick(Sender: TObject);
-    procedure BtnSiparislerClick(Sender: TObject);
-    procedure BtnMusterilerClick(Sender: TObject);
-    procedure BtnTahsilatClick(Sender: TObject);
-    procedure BtnKuryeTakipClick(Sender: TObject);
-    procedure BtnKasaClick(Sender: TObject);
-    procedure BtnStoklarClick(Sender: TObject);
-    procedure BtnRaporlarClick(Sender: TObject);
-    procedure BtnTabAnaSayfaClick(Sender: TObject);
-    procedure BtnTabSiparislerClick(Sender: TObject);
-    procedure BtnTabYeniSiparisClick(Sender: TObject);
-    procedure BtnTabBildirimlerClick(Sender: TObject);
-    procedure BtnTabAyarlarClick(Sender: TObject);
-    procedure BtnTumuSiparislerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure BtnTumuSiparislerClick(Sender: TObject);
+    procedure RectBtnYeniSiparisClick(Sender: TObject);
+    procedure RectBtnSiparislerClick(Sender: TObject);
+    procedure RectBtnMusterilerClick(Sender: TObject);
+    procedure RectBtnTahsilatClick(Sender: TObject);
+    procedure RectBtnKuryeTakipClick(Sender: TObject);
+    procedure RectBtnKasaClick(Sender: TObject);
+    procedure RectBtnStoklarClick(Sender: TObject);
+    procedure RectBtnRaporlarClick(Sender: TObject);
   private
     FDailySummary: TDailySummary;
     FRecentOrders: TOrderList;
-    FCurrentTab: Integer;
+    FLoginDone: Boolean;
+    procedure ShowLoginForm;
     procedure LoadDailySummary;
     procedure LoadTeslimEdilmemisSiparisler;
     procedure UpdateSummaryUI;
     procedure UpdateRecentOrdersUI;
-    procedure SetActiveTab(AIndex: Integer);
   public
     procedure RefreshData;
   end;
@@ -134,21 +100,46 @@ implementation
 
 uses
   uApiService, uAuthService, uHelpers,
-  uFrmYeniSiparis, uFrmSiparisler, uFrmKuryeTakip, uFrmMusteriSec;
+  uFrmLogin, uFrmYeniSiparis, uFrmSiparisler, uFrmGelenArama,
+  uFrmMusteriSec, uFrmStoklar;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
   FDailySummary := TDailySummary.Create;
   FRecentOrders := TOrderList.Create(True);
-  FCurrentTab := 0;
+  FLoginDone := False;
+end;
 
-  if AuthService.IsAuthenticated then
-  begin
-    LblUserName.Text := AuthService.UserName;
-    LblBayiName.Text := AuthService.BayiName;
+procedure TFrmMain.FormShow(Sender: TObject);
+begin
+  if not FLoginDone then
+    ShowLoginForm;
+end;
+
+procedure TFrmMain.ShowLoginForm;
+var
+  LLogin: TFrmLogin;
+begin
+  LLogin := TFrmLogin.Create(Application);
+  try
+    LLogin.ShowModal(
+      procedure(AResult: TModalResult)
+      begin
+        if LLogin.LoginSuccess then
+        begin
+          FLoginDone := True;
+          LblUserName.Text := AuthService.AdSoyad;
+          LblBayiName.Text := AuthService.BayiName;
+          RefreshData;
+        end
+        else
+          Application.Terminate;
+      end
+    );
+  except
+    LLogin.Free;
+    raise;
   end;
-
-  RefreshData;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
@@ -175,8 +166,8 @@ begin
     begin
       FDailySummary.SiparisAdedi := LData.GetValue<Integer>('toplamSiparis', 0);
       FDailySummary.Ciro := LData.GetValue<Double>('toplamTutar', 0);
-      FDailySummary.Tahsilat := LData.GetValue<Double>('toplamTutar', 0);
-      FDailySummary.Borc := 0;
+      FDailySummary.Tahsilat := LData.GetValue<Double>('toplamTahsilat', 0);
+      FDailySummary.Borc := LData.GetValue<Double>('toplamBorc', 0);
     end;
   finally
     LResponse.Free;
@@ -201,11 +192,7 @@ begin
       for I := 0 to LArray.Count - 1 do
       begin
         LOrder := TOrder.Create;
-        LOrder.Id := (LArray.Items[I] as TJSONObject).GetValue<Integer>('siparisId', 0);
-        LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
-        LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
-        LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
-        LOrder.DurumText := (LArray.Items[I] as TJSONObject).GetValue<string>('durum', '');
+        LOrder.FromJSON(LArray.Items[I] as TJSONObject);
         FRecentOrders.Add(LOrder);
       end;
     end;
@@ -238,111 +225,67 @@ begin
   end;
 end;
 
-procedure TFrmMain.SetActiveTab(AIndex: Integer);
-const
-  COLOR_ACTIVE = $FF1565C0;
-  COLOR_INACTIVE = $FF9E9E9E;
+procedure TFrmMain.RectBtnYeniSiparisClick(Sender: TObject);
+var
+  LForm: TFrmYeniSiparis;
 begin
-  FCurrentTab := AIndex;
-
-  PathNavAnaSayfa.Fill.Color := TAlphaColor(COLOR_INACTIVE);
-  LblNavAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  PathNavSiparisler.Fill.Color := TAlphaColor(COLOR_INACTIVE);
-  LblNavSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  PathNavBildirimler.Fill.Color := TAlphaColor(COLOR_INACTIVE);
-  LblNavBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  PathNavAyarlar.Fill.Color := TAlphaColor(COLOR_INACTIVE);
-  LblNavAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-
-  case AIndex of
-    0: begin
-      PathNavAnaSayfa.Fill.Color := TAlphaColor(COLOR_ACTIVE);
-      LblNavAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    end;
-    1: begin
-      PathNavSiparisler.Fill.Color := TAlphaColor(COLOR_ACTIVE);
-      LblNavSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    end;
-    3: begin
-      PathNavBildirimler.Fill.Color := TAlphaColor(COLOR_ACTIVE);
-      LblNavBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    end;
-    4: begin
-      PathNavAyarlar.Fill.Color := TAlphaColor(COLOR_ACTIVE);
-      LblNavAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
-    end;
-  end;
+  LForm := TFrmYeniSiparis.Create(Application);
+  LForm.Show;
 end;
 
-procedure TFrmMain.BtnYeniSiparisClick(Sender: TObject);
+procedure TFrmMain.RectBtnSiparislerClick(Sender: TObject);
+var
+  LForm: TFrmSiparisler;
 begin
-  FrmYeniSiparis.Show;
+  LForm := TFrmSiparisler.Create(Application);
+  LForm.Show;
 end;
 
-procedure TFrmMain.BtnSiparislerClick(Sender: TObject);
+procedure TFrmMain.RectBtnMusterilerClick(Sender: TObject);
+var
+  LForm: TFrmMusteriSec;
 begin
-  FrmSiparisler.Show;
+  LForm := TFrmMusteriSec.Create(Application);
+  LForm.Show;
 end;
 
-procedure TFrmMain.BtnMusterilerClick(Sender: TObject);
-begin
-  FrmMusteriSec.Show;
-end;
-
-procedure TFrmMain.BtnTahsilatClick(Sender: TObject);
+procedure TFrmMain.RectBtnTahsilatClick(Sender: TObject);
 begin
   // TODO: Tahsilat ekrani
 end;
 
-procedure TFrmMain.BtnKuryeTakipClick(Sender: TObject);
+procedure TFrmMain.RectBtnKuryeTakipClick(Sender: TObject);
+var
+  LForm: TFrmGelenArama;
 begin
-  FrmKuryeTakip.Show;
+  LForm := TFrmGelenArama.Create(Application);
+  LForm.Show;
 end;
 
-procedure TFrmMain.BtnKasaClick(Sender: TObject);
+procedure TFrmMain.RectBtnKasaClick(Sender: TObject);
 begin
   // TODO: Kasa ekrani
 end;
 
-procedure TFrmMain.BtnStoklarClick(Sender: TObject);
+procedure TFrmMain.RectBtnStoklarClick(Sender: TObject);
+var
+  LForm: TFrmStoklar;
 begin
-  // TODO: Stoklar ekrani
+  LForm := TFrmStoklar.Create(Application);
+  LForm.Show;
 end;
 
-procedure TFrmMain.BtnRaporlarClick(Sender: TObject);
+procedure TFrmMain.RectBtnRaporlarClick(Sender: TObject);
 begin
   // TODO: Raporlar ekrani
 end;
 
 procedure TFrmMain.BtnTumuSiparislerClick(Sender: TObject);
+var
+  LForm: TFrmSiparisler;
 begin
-  FrmSiparisler.Show;
-end;
-
-procedure TFrmMain.BtnTabAnaSayfaClick(Sender: TObject);
-begin
-  SetActiveTab(0);
-end;
-
-procedure TFrmMain.BtnTabSiparislerClick(Sender: TObject);
-begin
-  SetActiveTab(1);
-  FrmSiparisler.Show;
-end;
-
-procedure TFrmMain.BtnTabYeniSiparisClick(Sender: TObject);
-begin
-  FrmYeniSiparis.Show;
-end;
-
-procedure TFrmMain.BtnTabBildirimlerClick(Sender: TObject);
-begin
-  SetActiveTab(3);
-end;
-
-procedure TFrmMain.BtnTabAyarlarClick(Sender: TObject);
-begin
-  SetActiveTab(4);
+  LForm := TFrmSiparisler.Create(Application);
+  LForm.Show;
 end;
 
 end.
