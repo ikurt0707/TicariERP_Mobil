@@ -1,0 +1,8 @@
+# Delphi form files must use CRLF (Windows line endings)
+# RLINK32 fails with "Unsupported 16bit resource" on LF-only files
+*.dfm text eol=crlf
+*.fmx text eol=crlf
+*.pas text eol=crlf
+*.dpr text eol=crlf
+*.dproj text eol=crlf
+*.ini text eol=crlf
