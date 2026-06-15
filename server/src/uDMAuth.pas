@@ -3,7 +3,7 @@ unit uDMAuth;
 interface
 
 uses
-  System.SysUtils, System.Classes,
+  System.SysUtils, System.Classes, System.IniFiles, System.IOUtils,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Stan.Param,
   FireDAC.Phys, FireDAC.Phys.MSSQL, FireDAC.Phys.MSSQLDef,
@@ -19,6 +19,7 @@ type
   private
     FConnected: Boolean;
     procedure ConfigureAuthConnection;
+    function GetIniFilePath: string;
   public
     function GetAuthQuery: TFDQuery;
     property Connected: Boolean read FConnected;
@@ -47,22 +48,57 @@ begin
   end;
 end;
 
+function TDMAuth.GetIniFilePath: string;
+begin
+  Result := TPath.Combine(ExtractFilePath(ParamStr(0)), 'server.ini');
+end;
+
 procedure TDMAuth.ConfigureAuthConnection;
 var
-  LServer, LPort: string;
+  LIni: TIniFile;
+  LIniPath: string;
+  LServer, LPort, LDatabase, LUsername, LPassword: string;
 begin
-  LServer := GetEnvironmentVariable('MSSQL_SERVER_HOST');
-  LPort := GetEnvironmentVariable('MSSQL_SERVER_PORT');
+  LIniPath := GetIniFilePath;
 
-  if LServer = '' then LServer := '127.0.0.1';
-  if LPort = '' then LPort := '1433';
+  // Oncelik: server.ini dosyasi, yoksa ortam degiskenleri
+  if FileExists(LIniPath) then
+  begin
+    WriteLn('[DMAuth] server.ini okunuyor: ' + LIniPath);
+    LIni := TIniFile.Create(LIniPath);
+    try
+      LServer := LIni.ReadString('Database', 'Server', '127.0.0.1');
+      LPort := LIni.ReadString('Database', 'Port', '1433');
+      LDatabase := LIni.ReadString('Database', 'AuthDatabase', 'ERP_AUTH');
+      LUsername := LIni.ReadString('Database', 'Username', '');
+      LPassword := LIni.ReadString('Database', 'Password', '');
+    finally
+      LIni.Free;
+    end;
+  end
+  else
+  begin
+    WriteLn('[DMAuth] server.ini bulunamadi, ortam degiskenleri kullaniliyor...');
+    LServer := GetEnvironmentVariable('MSSQL_SERVER_HOST');
+    LPort := GetEnvironmentVariable('MSSQL_SERVER_PORT');
+    LDatabase := GetEnvironmentVariable('MSSQL_DATABASE_AUTH');
+    LUsername := GetEnvironmentVariable('MSSQL_USERNAME');
+    LPassword := GetEnvironmentVariable('MSSQL_PASSWORD');
+
+    if LServer = '' then LServer := '127.0.0.1';
+    if LPort = '' then LPort := '1433';
+    if LDatabase = '' then LDatabase := 'ERP_AUTH';
+  end;
+
+  if LUsername = '' then
+    WriteLn('[DMAuth] UYARI: Kullanici adi bos! server.ini veya ortam degiskenlerini kontrol edin.');
 
   FDConnectionAuth.Params.Clear;
   FDConnectionAuth.Params.DriverID := 'MSSQL';
   FDConnectionAuth.Params.Add('Server=' + LServer + ',' + LPort);
-  FDConnectionAuth.Params.Database := 'ERP_AUTH';
-  FDConnectionAuth.Params.UserName := GetEnvironmentVariable('MSSQL_USERNAME');
-  FDConnectionAuth.Params.Password := GetEnvironmentVariable('MSSQL_PASSWORD');
+  FDConnectionAuth.Params.Database := LDatabase;
+  FDConnectionAuth.Params.UserName := LUsername;
+  FDConnectionAuth.Params.Password := LPassword;
   FDConnectionAuth.Params.Add('ApplicationName=TicariERP_API_Auth');
   FDConnectionAuth.LoginPrompt := False;
 end;
@@ -70,7 +106,7 @@ end;
 function TDMAuth.GetAuthQuery: TFDQuery;
 begin
   if not FConnected then
-    raise Exception.Create('ERP_AUTH veritabanina baglanilmamis. Sunucu ayarlarini kontrol edin.');
+    raise Exception.Create('ERP_AUTH veritabanina baglanilmamis. server.ini dosyasini kontrol edin.');
   Result := TFDQuery.Create(nil);
   Result.Connection := FDConnectionAuth;
 end;
