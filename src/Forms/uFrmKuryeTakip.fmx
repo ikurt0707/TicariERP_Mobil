@@ -2,11 +2,347 @@ object FrmKuryeTakip: TFrmKuryeTakip
   Left = 0
   Top = 0
   Caption = 'Kurye Takip'
-  ClientHeight = 800
-  ClientWidth = 400
-  Fill.Color = claWhite
-  FormFactor.Width = 320
-  FormFactor.Height = 480
+  ClientHeight = 844
+  ClientWidth = 390
+  Fill.Color = xFFF5F5F5
+  FormFactor.Width = 390
+  FormFactor.Height = 844
   FormFactor.Devices = [Desktop, iPhone, iPad]
   DesignerMasterStyle = 0
+  object LayoutMain: TLayout
+    Align = Client
+    Size.Width = 390.000000000000000000
+    Size.Height = 844.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object LayoutHeader: TLayout
+      Align = Top
+      Size.Width = 390.000000000000000000
+      Size.Height = 56.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object RectHeader: TRectangle
+        Align = Client
+        Fill.Color = claWhite
+        Stroke.Color = xFFE0E0E0
+        XRadius = 0.000000000000000000
+        YRadius = 0.000000000000000000
+        object BtnBack: TSpeedButton
+          Align = Left
+          Margins.Left = 8.000000000000000000
+          Size.Width = 40.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          Text = '<'
+          StyledSettings = [Family]
+          TextSettings.Font.Size = 24.000000000000000000
+        end
+        object LblHeaderTitle: TLabel
+          Align = Center
+          Size.Width = 200.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          StyledSettings = [Family]
+          TextSettings.Font.Size = 18.000000000000000000
+          TextSettings.Font.Style = [fsBold]
+          TextSettings.HorzAlign = Center
+          Text = 'Kurye Takip'
+        end
+        object BtnRefresh: TSpeedButton
+          Align = Right
+          Margins.Right = 8.000000000000000000
+          Size.Width = 40.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          Text = #8635
+          StyledSettings = [Family]
+          TextSettings.Font.Size = 22.000000000000000000
+        end
+      end
+    end
+    object LayoutSummary: TLayout
+      Align = Top
+      Margins.Left = 16.000000000000000000
+      Margins.Top = 16.000000000000000000
+      Margins.Right = 16.000000000000000000
+      Size.Width = 358.000000000000000000
+      Size.Height = 80.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object GridSummary: TGridPanelLayout
+        Align = Client
+        Size.Width = 358.000000000000000000
+        Size.Height = 80.000000000000000000
+        Size.PlatformDefault = False
+        ColumnCollection = <
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = RectToplamCard
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = RectYoldaCard
+            Row = 0
+          end
+          item
+            Column = 2
+            Control = RectTeslimCard
+            Row = 0
+          end
+          item
+            Column = 3
+            Control = RectBekliyorCard
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        TabOrder = 0
+        object RectToplamCard: TRectangle
+          Align = Client
+          Margins.Left = 4.000000000000000000
+          Margins.Right = 4.000000000000000000
+          Fill.Color = claWhite
+          XRadius = 8.000000000000000000
+          YRadius = 8.000000000000000000
+          Stroke.Color = xFFE0E0E0
+          object LblToplamTitle: TLabel
+            Align = Top
+            Margins.Top = 8.000000000000000000
+            Size.Width = 81.500000000000000000
+            Size.Height = 16.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 10.000000000000000000
+            TextSettings.FontColor = xFF757575
+            TextSettings.HorzAlign = Center
+            Text = 'Toplam'
+          end
+          object LblToplamCount: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            TextSettings.HorzAlign = Center
+            Text = '0'
+          end
+        end
+        object RectYoldaCard: TRectangle
+          Align = Client
+          Margins.Left = 4.000000000000000000
+          Margins.Right = 4.000000000000000000
+          Fill.Color = claWhite
+          XRadius = 8.000000000000000000
+          YRadius = 8.000000000000000000
+          Stroke.Color = xFFE0E0E0
+          object LblYoldaTitle: TLabel
+            Align = Top
+            Margins.Top = 8.000000000000000000
+            Size.Width = 81.500000000000000000
+            Size.Height = 16.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 10.000000000000000000
+            TextSettings.FontColor = xFF2196F3
+            TextSettings.HorzAlign = Center
+            Text = 'Yolda'
+          end
+          object LblYoldaCount: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            TextSettings.FontColor = xFF2196F3
+            TextSettings.HorzAlign = Center
+            Text = '0'
+          end
+        end
+        object RectTeslimCard: TRectangle
+          Align = Client
+          Margins.Left = 4.000000000000000000
+          Margins.Right = 4.000000000000000000
+          Fill.Color = claWhite
+          XRadius = 8.000000000000000000
+          YRadius = 8.000000000000000000
+          Stroke.Color = xFFE0E0E0
+          object LblTeslimTitle: TLabel
+            Align = Top
+            Margins.Top = 8.000000000000000000
+            Size.Width = 81.500000000000000000
+            Size.Height = 16.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 10.000000000000000000
+            TextSettings.FontColor = xFF4CAF50
+            TextSettings.HorzAlign = Center
+            Text = 'Teslim'
+          end
+          object LblTeslimCount: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            TextSettings.FontColor = xFF4CAF50
+            TextSettings.HorzAlign = Center
+            Text = '0'
+          end
+        end
+        object RectBekliyorCard: TRectangle
+          Align = Client
+          Margins.Left = 4.000000000000000000
+          Margins.Right = 4.000000000000000000
+          Fill.Color = claWhite
+          XRadius = 8.000000000000000000
+          YRadius = 8.000000000000000000
+          Stroke.Color = xFFE0E0E0
+          object LblBekliyorTitle: TLabel
+            Align = Top
+            Margins.Top = 8.000000000000000000
+            Size.Width = 81.500000000000000000
+            Size.Height = 16.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.Size = 10.000000000000000000
+            TextSettings.FontColor = xFFFF9800
+            TextSettings.HorzAlign = Center
+            Text = 'Bekliyor'
+          end
+          object LblBekliyorCount: TLabel
+            Align = Client
+            StyledSettings = [Family]
+            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.Style = [fsBold]
+            TextSettings.FontColor = xFFFF9800
+            TextSettings.HorzAlign = Center
+            Text = '0'
+          end
+        end
+      end
+    end
+    object LayoutFilter: TLayout
+      Align = Top
+      Margins.Left = 16.000000000000000000
+      Margins.Top = 12.000000000000000000
+      Margins.Right = 16.000000000000000000
+      Size.Width = 358.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      object GridFilter: TGridPanelLayout
+        Align = Client
+        Size.Width = 358.000000000000000000
+        Size.Height = 40.000000000000000000
+        Size.PlatformDefault = False
+        ColumnCollection = <
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end
+          item
+            Value = 25.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = BtnFilterTumu
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = BtnFilterYolda
+            Row = 0
+          end
+          item
+            Column = 2
+            Control = BtnFilterTeslim
+            Row = 0
+          end
+          item
+            Column = 3
+            Control = BtnFilterBekliyor
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        TabOrder = 0
+        object BtnFilterTumu: TCornerButton
+          Align = Client
+          Margins.Left = 2.000000000000000000
+          Margins.Right = 2.000000000000000000
+          Size.Width = 85.500000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Tumu'
+          TextSettings.FontColor = claWhite
+          XRadius = 20.000000000000000000
+          YRadius = 20.000000000000000000
+        end
+        object BtnFilterYolda: TCornerButton
+          Align = Client
+          Margins.Left = 2.000000000000000000
+          Margins.Right = 2.000000000000000000
+          Size.Width = 85.500000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Yolda'
+          XRadius = 20.000000000000000000
+          YRadius = 20.000000000000000000
+        end
+        object BtnFilterTeslim: TCornerButton
+          Align = Client
+          Margins.Left = 2.000000000000000000
+          Margins.Right = 2.000000000000000000
+          Size.Width = 85.500000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Teslim'
+          XRadius = 20.000000000000000000
+          YRadius = 20.000000000000000000
+        end
+        object BtnFilterBekliyor: TCornerButton
+          Align = Client
+          Margins.Left = 2.000000000000000000
+          Margins.Right = 2.000000000000000000
+          Size.Width = 85.500000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Bekliyor'
+          XRadius = 20.000000000000000000
+          YRadius = 20.000000000000000000
+        end
+      end
+    end
+    object ListViewCouriers: TListView
+      Align = Client
+      Margins.Left = 16.000000000000000000
+      Margins.Top = 12.000000000000000000
+      Margins.Right = 16.000000000000000000
+      Margins.Bottom = 16.000000000000000000
+      Size.Width = 358.000000000000000000
+      Size.Height = 580.000000000000000000
+      Size.PlatformDefault = False
+      ItemAppearanceClassName = 'TListItemAppearance'
+      ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+      HeaderAppearanceClassName = 'TListHeaderObjects'
+      FooterAppearanceClassName = 'TListHeaderObjects'
+    end
+  end
 end

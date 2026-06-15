@@ -5,9 +5,8 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.TabControl,
-  FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base,
+  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.ListView,
+  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
   System.Generics.Collections,
   uCourier, uOrder, uConstants;
 
@@ -15,36 +14,58 @@ type
   TKuryeTabFilter = (ktfTumu, ktfYolda, ktfTeslimEdildi, ktfBekliyor);
 
   TFrmKuryeTakip = class(TForm)
+    LayoutMain: TLayout;
+    LayoutHeader: TLayout;
+    RectHeader: TRectangle;
+    BtnBack: TSpeedButton;
+    LblHeaderTitle: TLabel;
+    BtnRefresh: TSpeedButton;
+    LayoutSummary: TLayout;
+    GridSummary: TGridPanelLayout;
+    RectToplamCard: TRectangle;
+    LblToplamTitle: TLabel;
+    LblToplamCount: TLabel;
+    RectYoldaCard: TRectangle;
+    LblYoldaTitle: TLabel;
+    LblYoldaCount: TLabel;
+    RectTeslimCard: TRectangle;
+    LblTeslimTitle: TLabel;
+    LblTeslimCount: TLabel;
+    RectBekliyorCard: TRectangle;
+    LblBekliyorTitle: TLabel;
+    LblBekliyorCount: TLabel;
+    LayoutFilter: TLayout;
+    GridFilter: TGridPanelLayout;
+    BtnFilterTumu: TCornerButton;
+    BtnFilterYolda: TCornerButton;
+    BtnFilterTeslim: TCornerButton;
+    BtnFilterBekliyor: TCornerButton;
+    ListViewCouriers: TListView;
+    procedure BtnBackClick(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
+    procedure BtnFilterTumuClick(Sender: TObject);
+    procedure BtnFilterYoldaClick(Sender: TObject);
+    procedure BtnFilterTeslimClick(Sender: TObject);
+    procedure BtnFilterBekliyorClick(Sender: TObject);
+    procedure ListViewCouriersItemClick(const Sender: TObject; const AItem: TListViewItem);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FCouriers: TObjectList<TCourier>;
-    FOrders: TObjectList<TOrder>;
+    FOrders: TOrderList;
     FCurrentFilter: TKuryeTabFilter;
     FTotalOrders: Integer;
     FYoldaCount: Integer;
     FTeslimCount: Integer;
     FBekliyorCount: Integer;
-
-    procedure LoadCouriers;
-    procedure LoadOrders;
-    procedure SetupUI;
+    procedure LoadData;
     procedure UpdateCounts;
-    procedure ApplyFilter(AFilter: TKuryeTabFilter);
+    procedure UpdateUI;
+    procedure ApplyFilter;
+    procedure SetFilter(AFilter: TKuryeTabFilter);
+    procedure UpdateFilterButtons;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-
-    procedure OnFilterChange(AFilter: TKuryeTabFilter);
-    procedure OnRefreshClick(Sender: TObject);
-    procedure OnCourierClick(ACourierId: Integer);
-
-    function GetFilteredOrders: TObjectList<TOrder>;
-    function GetCourierById(AId: Integer): TCourier;
-
     property CurrentFilter: TKuryeTabFilter read FCurrentFilter;
-    property TotalOrders: Integer read FTotalOrders;
-    property YoldaCount: Integer read FYoldaCount;
-    property TeslimCount: Integer read FTeslimCount;
-    property BekliyorCount: Integer read FBekliyorCount;
   end;
 
 var
@@ -54,120 +75,139 @@ implementation
 
 {$R *.fmx}
 
-{ TFrmKuryeTakip }
+uses
+  uOrderService, uHelpers;
 
-constructor TFrmKuryeTakip.Create(AOwner: TComponent);
+procedure TFrmKuryeTakip.FormCreate(Sender: TObject);
 begin
-  inherited Create(AOwner);
   FCouriers := TObjectList<TCourier>.Create(True);
-  FOrders := TObjectList<TOrder>.Create(True);
+  FOrders := TOrderList.Create(True);
   FCurrentFilter := ktfTumu;
-  SetupUI;
-  LoadCouriers;
-  LoadOrders;
-  UpdateCounts;
+  LoadData;
 end;
 
-destructor TFrmKuryeTakip.Destroy;
+procedure TFrmKuryeTakip.FormDestroy(Sender: TObject);
 begin
   FCouriers.Free;
   FOrders.Free;
-  inherited;
 end;
 
-procedure TFrmKuryeTakip.SetupUI;
+procedure TFrmKuryeTakip.LoadData;
 begin
-  Caption := 'Kurye Takip';
-end;
-
-procedure TFrmKuryeTakip.LoadCouriers;
-begin
-  FCouriers.Clear;
-  // Will load from API
-end;
-
-procedure TFrmKuryeTakip.LoadOrders;
-begin
-  FOrders.Clear;
-  // Will load from API
+  UpdateCounts;
+  UpdateUI;
+  ApplyFilter;
 end;
 
 procedure TFrmKuryeTakip.UpdateCounts;
 var
   I: Integer;
 begin
-  FTotalOrders := FOrders.Count;
+  FTotalOrders := 0;
   FYoldaCount := 0;
   FTeslimCount := 0;
   FBekliyorCount := 0;
 
   for I := 0 to FOrders.Count - 1 do
   begin
+    Inc(FTotalOrders);
     case FOrders[I].Durum of
       osYolda: Inc(FYoldaCount);
       osTeslimEdildi: Inc(FTeslimCount);
       osHazirlaniyor: Inc(FBekliyorCount);
     end;
   end;
+
+  LblToplamCount.Text := IntToStr(FTotalOrders);
+  LblYoldaCount.Text := IntToStr(FYoldaCount);
+  LblTeslimCount.Text := IntToStr(FTeslimCount);
+  LblBekliyorCount.Text := IntToStr(FBekliyorCount);
 end;
 
-procedure TFrmKuryeTakip.ApplyFilter(AFilter: TKuryeTabFilter);
+procedure TFrmKuryeTakip.UpdateUI;
 begin
-  FCurrentFilter := AFilter;
-  // Refresh UI
+  UpdateFilterButtons;
 end;
 
-procedure TFrmKuryeTakip.OnFilterChange(AFilter: TKuryeTabFilter);
-begin
-  ApplyFilter(AFilter);
-end;
-
-procedure TFrmKuryeTakip.OnRefreshClick(Sender: TObject);
-begin
-  LoadCouriers;
-  LoadOrders;
-  UpdateCounts;
-end;
-
-procedure TFrmKuryeTakip.OnCourierClick(ACourierId: Integer);
-begin
-  // Show courier details
-end;
-
-function TFrmKuryeTakip.GetFilteredOrders: TObjectList<TOrder>;
+procedure TFrmKuryeTakip.ApplyFilter;
 var
   I: Integer;
+  LItem: TListViewItem;
+  LCourier: TCourier;
 begin
-  Result := TObjectList<TOrder>.Create(False); // Non-owning
-  for I := 0 to FOrders.Count - 1 do
+  ListViewCouriers.Items.Clear;
+  for I := 0 to FCouriers.Count - 1 do
   begin
-    case FCurrentFilter of
-      ktfTumu:
-        Result.Add(FOrders[I]);
-      ktfYolda:
-        if FOrders[I].Durum = osYolda then
-          Result.Add(FOrders[I]);
-      ktfTeslimEdildi:
-        if FOrders[I].Durum = osTeslimEdildi then
-          Result.Add(FOrders[I]);
-      ktfBekliyor:
-        if FOrders[I].Durum = osHazirlaniyor then
-          Result.Add(FOrders[I]);
-    end;
+    LCourier := FCouriers[I];
+    LItem := ListViewCouriers.Items.Add;
+    LItem.Text := LCourier.AdSoyad;
+    LItem.Detail := Format('%s | Teslim: %d/%d',
+      [LCourier.GetDurumText, LCourier.TeslimEdilen, LCourier.ToplamSiparis]);
+    LItem.Tag := LCourier.Id;
   end;
 end;
 
-function TFrmKuryeTakip.GetCourierById(AId: Integer): TCourier;
-var
-  I: Integer;
+procedure TFrmKuryeTakip.SetFilter(AFilter: TKuryeTabFilter);
 begin
-  Result := nil;
-  for I := 0 to FCouriers.Count - 1 do
-    if FCouriers[I].Id = AId then
-    begin
-      Result := FCouriers[I];
-      Exit;
-    end;
+  FCurrentFilter := AFilter;
+  UpdateFilterButtons;
+  ApplyFilter;
+end;
+
+procedure TFrmKuryeTakip.UpdateFilterButtons;
+var
+  LActiveColor, LInactiveColor: TAlphaColor;
+begin
+  LActiveColor := TAlphaColorRec.Create(COLOR_PRIMARY);
+  LInactiveColor := TAlphaColorRec.Create($FFE0E0E0);
+
+  BtnFilterTumu.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+  BtnFilterYolda.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+  BtnFilterTeslim.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+  BtnFilterBekliyor.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+
+  case FCurrentFilter of
+    ktfTumu: BtnFilterTumu.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
+    ktfYolda: BtnFilterYolda.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
+    ktfTeslimEdildi: BtnFilterTeslim.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
+    ktfBekliyor: BtnFilterBekliyor.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
+  end;
+end;
+
+procedure TFrmKuryeTakip.BtnBackClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFrmKuryeTakip.BtnRefreshClick(Sender: TObject);
+begin
+  LoadData;
+end;
+
+procedure TFrmKuryeTakip.BtnFilterTumuClick(Sender: TObject);
+begin
+  SetFilter(ktfTumu);
+end;
+
+procedure TFrmKuryeTakip.BtnFilterYoldaClick(Sender: TObject);
+begin
+  SetFilter(ktfYolda);
+end;
+
+procedure TFrmKuryeTakip.BtnFilterTeslimClick(Sender: TObject);
+begin
+  SetFilter(ktfTeslimEdildi);
+end;
+
+procedure TFrmKuryeTakip.BtnFilterBekliyorClick(Sender: TObject);
+begin
+  SetFilter(ktfBekliyor);
+end;
+
+procedure TFrmKuryeTakip.ListViewCouriersItemClick(const Sender: TObject;
+  const AItem: TListViewItem);
+begin
+  // Show courier detail
 end;
 
 end.
