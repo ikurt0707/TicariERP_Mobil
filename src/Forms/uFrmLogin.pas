@@ -89,27 +89,39 @@ begin
       EdtSifre.Text.Trim
     );
     try
+      if not Assigned(LResponse) then
+      begin
+        ShowError('Sunucudan cevap alinamadi');
+        Exit;
+      end;
+
       if not LResponse.Success then
       begin
         ShowError('Baglanti hatasi: ' + LResponse.ErrorMessage);
         Exit;
       end;
 
-      if not (LResponse.Data is TJSONObject) then
+      // DataSnap result wrapper'dan veriyi cikar
+      LData := ExtractDSResult(LResponse);
+      if not Assigned(LData) then
       begin
-        ShowError('Gecersiz sunucu yaniti');
+        ShowError('Sunucu result bos dondu');
         Exit;
       end;
 
-      LData := TJSONObject(LResponse.Data);
       if not LData.GetValue<Boolean>('success', False) then
       begin
         ShowError(LData.GetValue<string>('message', 'Giris basarisiz'));
         Exit;
       end;
 
-      // Login successful
       LToken := LData.GetValue<string>('token', '');
+      if LToken = '' then
+      begin
+        ShowError('Token bos geldi');
+        Exit;
+      end;
+
       ApiService.SetToken(LToken);
 
       // Extract user info
@@ -136,7 +148,6 @@ begin
       if ChkBeniHatirla.IsChecked then
         SaveCredentials;
 
-      // Show main form
       FrmMain.Show;
       Self.Hide;
     finally

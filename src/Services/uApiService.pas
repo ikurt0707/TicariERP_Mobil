@@ -51,6 +51,10 @@ type
     property Timeout: Integer read FTimeout write FTimeout;
   end;
 
+/// <summary>DataSnap result wrapper'dan veriyi cikarir.
+/// DataSnap {"result": [<data>]} formatinda sarar, bu fonksiyon ic objeyi dondurur.</summary>
+function ExtractDSResult(AResponse: TApiResponse): TJSONObject;
+
 var
   ApiService: TApiService;
 
@@ -120,8 +124,6 @@ end;
 function TApiService.ParseResponse(AResponse: IHTTPResponse): TApiResponse;
 var
   LJson: TJSONValue;
-  LObj: TJSONObject;
-  LArr: TJSONArray;
 begin
   Result := TApiResponse.Create;
   Result.StatusCode := AResponse.StatusCode;
@@ -132,22 +134,7 @@ begin
     try
       LJson := TJSONObject.ParseJSONValue(AResponse.ContentAsString);
       if Assigned(LJson) then
-      begin
-        // DataSnap wraps results as {"result": [<actual_data>]}
-        if (LJson is TJSONObject) then
-        begin
-          LObj := TJSONObject(LJson);
-          if LObj.TryGetValue<TJSONArray>('result', LArr) and (LArr.Count > 0) then
-          begin
-            Result.Data := LArr.Items[0].Clone as TJSONValue;
-            LJson.Free;
-          end
-          else
-            Result.Data := LJson;
-        end
-        else
-          Result.Data := LJson;
-      end;
+        Result.Data := LJson;
     except
       on E: Exception do
         Result.ErrorMessage := E.Message;
@@ -271,6 +258,36 @@ end;
 function TApiService.HasToken: Boolean;
 begin
   Result := FToken <> '';
+end;
+
+function ExtractDSResult(AResponse: TApiResponse): TJSONObject;
+var
+  LRoot: TJSONObject;
+  LResultArray: TJSONArray;
+begin
+  Result := nil;
+
+  if not Assigned(AResponse) then
+    Exit;
+
+  if not AResponse.Success then
+    Exit;
+
+  if not (AResponse.Data is TJSONObject) then
+    Exit;
+
+  LRoot := TJSONObject(AResponse.Data);
+
+  if not LRoot.TryGetValue<TJSONArray>('result', LResultArray) then
+    Exit;
+
+  if (LResultArray.Count = 0) then
+    Exit;
+
+  if not (LResultArray.Items[0] is TJSONObject) then
+    Exit;
+
+  Result := TJSONObject(LResultArray.Items[0]);
 end;
 
 initialization

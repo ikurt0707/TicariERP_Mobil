@@ -170,9 +170,9 @@ var
 begin
   LResponse := ApiService.Get('rest/TSmSiparis/GetGunlukOzet/');
   try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) then
     begin
-      LData := TJSONObject(LResponse.Data);
       FDailySummary.SiparisAdedi := LData.GetValue<Integer>('toplamSiparis', 0);
       FDailySummary.Ciro := LData.GetValue<Double>('toplamTutar', 0);
       FDailySummary.Tahsilat := LData.GetValue<Double>('toplamTutar', 0);
@@ -195,21 +195,18 @@ begin
   FRecentOrders.Clear;
   LResponse := ApiService.Get('rest/TSmSiparis/GetTeslimEdilmemisSiparisler/50');
   try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    LData := ExtractDSResult(LResponse);
+    if Assigned(LData) and LData.TryGetValue<TJSONArray>('data', LArray) then
     begin
-      LData := TJSONObject(LResponse.Data);
-      if LData.TryGetValue<TJSONArray>('data', LArray) then
+      for I := 0 to LArray.Count - 1 do
       begin
-        for I := 0 to LArray.Count - 1 do
-        begin
-          LOrder := TOrder.Create;
-          LOrder.Id := (LArray.Items[I] as TJSONObject).GetValue<Integer>('siparisId', 0);
-          LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
-          LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
-          LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
-          LOrder.DurumText := (LArray.Items[I] as TJSONObject).GetValue<string>('durum', '');
-          FRecentOrders.Add(LOrder);
-        end;
+        LOrder := TOrder.Create;
+        LOrder.Id := (LArray.Items[I] as TJSONObject).GetValue<Integer>('siparisId', 0);
+        LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
+        LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
+        LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
+        LOrder.DurumText := (LArray.Items[I] as TJSONObject).GetValue<string>('durum', '');
+        FRecentOrders.Add(LOrder);
       end;
     end;
   finally
