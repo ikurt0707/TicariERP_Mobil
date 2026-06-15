@@ -258,7 +258,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Yeni'#13#10'Siparis''
+                Text = 'Yeni'#13#10'Siparis'
                 HitTest = False
               end
             end
@@ -298,7 +298,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Siparisler''
+                Text = 'Siparisler'
                 HitTest = False
               end
             end
@@ -338,7 +338,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Musteriler''
+                Text = 'Musteriler'
                 HitTest = False
               end
             end
@@ -378,7 +378,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Tahsilat''
+                Text = 'Tahsilat'
                 HitTest = False
               end
             end
@@ -418,7 +418,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Kurye'#13#10'Takip''
+                Text = 'Kurye'#13#10'Takip'
                 HitTest = False
               end
             end
@@ -458,7 +458,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Kasa''
+                Text = 'Kasa'
                 HitTest = False
               end
             end
@@ -498,7 +498,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Stoklar''
+                Text = 'Stoklar'
                 HitTest = False
               end
             end
@@ -538,7 +538,7 @@ object FrmMain: TFrmMain
                 TextSettings.FontColor = xFF424242
                 TextSettings.HorzAlign = Center
                 TextSettings.VertAlign = Center
-                Text = ''Raporlar''
+                Text = 'Raporlar'
                 HitTest = False
               end
             end
