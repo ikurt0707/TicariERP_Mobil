@@ -9,4 +9,8 @@ object DMAuth: TDMAuth
     Left = 56
     Top = 32
   end
+  object FDPhysMSSQLDriverLink1: TFDPhysMSSQLDriverLink
+    Left = 56
+    Top = 96
+  end
 end
