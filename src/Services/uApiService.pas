@@ -120,6 +120,8 @@ end;
 function TApiService.ParseResponse(AResponse: IHTTPResponse): TApiResponse;
 var
   LJson: TJSONValue;
+  LObj: TJSONObject;
+  LArr: TJSONArray;
 begin
   Result := TApiResponse.Create;
   Result.StatusCode := AResponse.StatusCode;
@@ -130,7 +132,22 @@ begin
     try
       LJson := TJSONObject.ParseJSONValue(AResponse.ContentAsString);
       if Assigned(LJson) then
-        Result.Data := LJson;
+      begin
+        // DataSnap wraps results as {"result": [<actual_data>]}
+        if (LJson is TJSONObject) then
+        begin
+          LObj := TJSONObject(LJson);
+          if LObj.TryGetValue<TJSONArray>('result', LArr) and (LArr.Count > 0) then
+          begin
+            Result.Data := LArr.Items[0].Clone as TJSONValue;
+            LJson.Free;
+          end
+          else
+            Result.Data := LJson;
+        end
+        else
+          Result.Data := LJson;
+      end;
     except
       on E: Exception do
         Result.ErrorMessage := E.Message;
