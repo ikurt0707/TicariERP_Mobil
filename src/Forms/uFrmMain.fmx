@@ -18,15 +18,12 @@ object FrmMain: TFrmMain
     object LayoutHeader: TLayout
       Align = Top
       Size.Width = 390.000000000000000000
-      Size.Height = 100.000000000000000000
+      Size.Height = 56.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 0
       object RectHeader: TRectangle
         Align = Client
         Fill.Color = xFF1565C0
-        Size.Width = 390.000000000000000000
-        Size.Height = 100.000000000000000000
-        Size.PlatformDefault = False
         Stroke.Kind = None
         XRadius = 0.000000000000000000
         YRadius = 0.000000000000000000
@@ -34,57 +31,77 @@ object FrmMain: TFrmMain
           Align = Center
           StyledSettings = [Family, Size]
           Size.Width = 200.000000000000000000
-          Size.Height = 30.000000000000000000
+          Size.Height = 24.000000000000000000
           Size.PlatformDefault = False
-          TextSettings.Font.Size = 20.000000000000000000
+          TextSettings.Font.Size = 18.000000000000000000
           TextSettings.Font.Style = [fsBold]
           TextSettings.FontColor = claWhite
           TextSettings.HorzAlign = Center
           Text = 'TicariERP Mobil'
         end
-        object BtnMenu: TSpeedButton
+        object PathMenuIcon: TPath
           Align = Left
           Margins.Left = 16.000000000000000000
-          Size.Width = 40.000000000000000000
-          Size.Height = 100.000000000000000000
+          Margins.Top = 16.000000000000000000
+          Margins.Bottom = 16.000000000000000000
+          Size.Width = 24.000000000000000000
+          Size.Height = 24.000000000000000000
           Size.PlatformDefault = False
-          Text = #9776
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 24.000000000000000000
-          TextSettings.FontColor = claWhite
+          WrapMode = Fit
+          Fill.Color = claWhite
+          Stroke.Kind = None
+          HitTest = False
+          Data.Path = 'M 3 18 L 21 18 L 21 16 L 3 16 Z M 3 13 L 21 13 L 21 11 L 3 11 Z M 3 6 L 3 8 L 21 8 L 21 6 Z'
+        end
+        object BtnMenu: TSpeedButton
+          Align = Left
+          Size.Width = 56.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          Text = ''
+        end
+        object PathNotifIcon: TPath
+          Align = Right
+          Margins.Right = 16.000000000000000000
+          Margins.Top = 16.000000000000000000
+          Margins.Bottom = 16.000000000000000000
+          Size.Width = 24.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          WrapMode = Fit
+          Fill.Color = claWhite
+          Stroke.Kind = None
+          HitTest = False
+          Data.Path = 'M 12 22 C 13.1 22 14 21.1 14 20 L 10 20 C 10 21.1 10.9 22 12 22 Z M 18 16 L 18 11 C 18 7.93 16.36 5.36 13.5 4.68 L 13.5 4 C 13.5 3.17 12.83 2.5 12 2.5 C 11.17 2.5 10.5 3.17 10.5 4 L 10.5 4.68 C 7.63 5.36 6 7.92 6 11 L 6 16 L 4 18 L 4 19 L 20 19 L 20 18 Z'
         end
         object BtnNotification: TSpeedButton
           Align = Right
-          Margins.Right = 16.000000000000000000
-          Size.Width = 40.000000000000000000
-          Size.Height = 100.000000000000000000
+          Size.Width = 56.000000000000000000
+          Size.Height = 56.000000000000000000
           Size.PlatformDefault = False
-          Text = #128276
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 20.000000000000000000
-          TextSettings.FontColor = claWhite
+          Text = ''
         end
       end
     end
     object LayoutContent: TLayout
       Align = Client
       Size.Width = 390.000000000000000000
-      Size.Height = 684.000000000000000000
+      Size.Height = 728.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
       object ScrollContent: TVertScrollBox
         Align = Client
         Size.Width = 390.000000000000000000
-        Size.Height = 684.000000000000000000
+        Size.Height = 728.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object LayoutWelcome: TLayout
           Align = Top
           Margins.Left = 16.000000000000000000
-          Margins.Top = 16.000000000000000000
+          Margins.Top = 12.000000000000000000
           Margins.Right = 16.000000000000000000
           Size.Width = 358.000000000000000000
-          Size.Height = 80.000000000000000000
+          Size.Height = 72.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           object RectWelcome: TRectangle
@@ -93,228 +110,436 @@ object FrmMain: TFrmMain
             XRadius = 12.000000000000000000
             YRadius = 12.000000000000000000
             Stroke.Kind = None
-            Size.Width = 358.000000000000000000
-            Size.Height = 80.000000000000000000
-            Size.PlatformDefault = False
             object LblWelcome: TLabel
-              Align = Left
+              Align = Top
               Margins.Left = 16.000000000000000000
-              Margins.Top = 8.000000000000000000
-              Size.Width = 180.000000000000000000
-              Size.Height = 20.000000000000000000
+              Margins.Top = 10.000000000000000000
+              Size.Width = 326.000000000000000000
+              Size.Height = 16.000000000000000000
               Size.PlatformDefault = False
-              Position.Y = 8.000000000000000000
-              TextSettings.FontColor = claWhite
+              TextSettings.Font.Size = 12.000000000000000000
+              TextSettings.FontColor = xFFBBDEFB
               Text = 'Hos Geldiniz'
             end
             object LblUserName: TLabel
-              Align = Left
+              Align = Top
               Margins.Left = 16.000000000000000000
-              Margins.Top = 30.000000000000000000
-              Size.Width = 180.000000000000000000
-              Size.Height = 24.000000000000000000
+              Margins.Top = 2.000000000000000000
+              Size.Width = 326.000000000000000000
+              Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
-              Position.Y = 30.000000000000000000
               StyledSettings = [Family]
               TextSettings.Font.Size = 16.000000000000000000
               TextSettings.Font.Style = [fsBold]
               TextSettings.FontColor = claWhite
-              Text = 'Ismail Kurt'
+              Text = ''
             end
             object LblBayiName: TLabel
-              Align = Left
+              Align = Top
               Margins.Left = 16.000000000000000000
-              Margins.Top = 54.000000000000000000
-              Size.Width = 180.000000000000000000
-              Size.Height = 20.000000000000000000
+              Size.Width = 326.000000000000000000
+              Size.Height = 16.000000000000000000
               Size.PlatformDefault = False
-              Position.Y = 54.000000000000000000
-              TextSettings.FontColor = claWhite
-              Text = 'Soguksu Su Bayii'
+              TextSettings.Font.Size = 11.000000000000000000
+              TextSettings.FontColor = xFFBBDEFB
+              Text = ''
             end
           end
         end
         object LayoutQuickActions: TLayout
           Align = Top
-          Margins.Left = 16.000000000000000000
-          Margins.Top = 16.000000000000000000
-          Margins.Right = 16.000000000000000000
-          Size.Width = 358.000000000000000000
+          Margins.Left = 12.000000000000000000
+          Margins.Top = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
+          Size.Width = 366.000000000000000000
           Size.Height = 220.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
-          object RectQuickActions: TRectangle
+          object GridActions: TGridPanelLayout
             Align = Client
-            Fill.Color = claWhite
-            XRadius = 12.000000000000000000
-            YRadius = 12.000000000000000000
-            Stroke.Kind = None
-            object GridActions: TGridPanelLayout
+            Size.Width = 366.000000000000000000
+            Size.Height = 220.000000000000000000
+            Size.PlatformDefault = False
+            ColumnCollection = <
+              item
+                Value = 25.000000000000000000
+              end
+              item
+                Value = 25.000000000000000000
+              end
+              item
+                Value = 25.000000000000000000
+              end
+              item
+                Value = 25.000000000000000000
+              end>
+            ControlCollection = <
+              item
+                Column = 0
+                Control = RectBtnYeniSiparis
+                Row = 0
+              end
+              item
+                Column = 1
+                Control = RectBtnSiparisler
+                Row = 0
+              end
+              item
+                Column = 2
+                Control = RectBtnMusteriler
+                Row = 0
+              end
+              item
+                Column = 3
+                Control = RectBtnTahsilat
+                Row = 0
+              end
+              item
+                Column = 0
+                Control = RectBtnKuryeTakip
+                Row = 1
+              end
+              item
+                Column = 1
+                Control = RectBtnKasa
+                Row = 1
+              end
+              item
+                Column = 2
+                Control = RectBtnStoklar
+                Row = 1
+              end
+              item
+                Column = 3
+                Control = RectBtnRaporlar
+                Row = 1
+              end>
+            RowCollection = <
+              item
+                Value = 50.000000000000000000
+              end
+              item
+                Value = 50.000000000000000000
+              end>
+            TabOrder = 0
+            object RectBtnYeniSiparis: TRectangle
               Align = Client
-              Margins.Left = 8.000000000000000000
-              Margins.Top = 8.000000000000000000
-              Margins.Right = 8.000000000000000000
-              Margins.Bottom = 8.000000000000000000
-              Size.Width = 342.000000000000000000
-              Size.Height = 204.000000000000000000
-              Size.PlatformDefault = False
-              ColumnCollection = <
-                item
-                  Value = 25.000000000000000000
-                end
-                item
-                  Value = 25.000000000000000000
-                end
-                item
-                  Value = 25.000000000000000000
-                end
-                item
-                  Value = 25.000000000000000000
-                end>
-              ControlCollection = <
-                item
-                  Column = 0
-                  Control = BtnYeniSiparis
-                  Row = 0
-                end
-                item
-                  Column = 1
-                  Control = BtnSiparisler
-                  Row = 0
-                end
-                item
-                  Column = 2
-                  Control = BtnMusteriler
-                  Row = 0
-                end
-                item
-                  Column = 3
-                  Control = BtnTahsilat
-                  Row = 0
-                end
-                item
-                  Column = 0
-                  Control = BtnKuryeTakip
-                  Row = 1
-                end
-                item
-                  Column = 1
-                  Control = BtnKasa
-                  Row = 1
-                end
-                item
-                  Column = 2
-                  Control = BtnStoklar
-                  Row = 1
-                end
-                item
-                  Column = 3
-                  Control = BtnRaporlar
-                  Row = 1
-                end>
-              RowCollection = <
-                item
-                  Value = 50.000000000000000000
-                end
-                item
-                  Value = 50.000000000000000000
-                end>
-              TabOrder = 0
-              object BtnYeniSiparis: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFE3F2FD
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnYeniSiparisClick
+              object PathIconYeniSiparis: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Yeni Siparis'
-                TextSettings.Font.Size = 11.000000000000000000
+                WrapMode = Fit
+                Fill.Color = xFF1565C0
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 12 2 C 6.48 2 2 6.48 2 12 C 2 17.52 6.48 22 12 22 C 17.52 22 22 17.52 22 12 C 22 6.48 17.52 2 12 2 Z M 17 13 L 13 13 L 13 17 L 11 17 L 11 13 L 7 13 L 7 11 L 11 11 L 11 7 L 13 7 L 13 11 L 17 11 Z'
               end
-              object BtnSiparisler: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+              object LblBtnYeniSiparis: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Siparisler'
-                TextSettings.Font.Size = 11.000000000000000000
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Yeni'#13#10'Siparis''
+                HitTest = False
               end
-              object BtnMusteriler: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+            end
+            object RectBtnSiparisler: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFE8F5E9
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnSiparislerClick
+              object PathIconSiparisler: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Musteriler'
-                TextSettings.Font.Size = 11.000000000000000000
+                WrapMode = Fit
+                Fill.Color = xFF2E7D32
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 19 3 L 5 3 C 3.9 3 3 3.9 3 5 L 3 19 C 3 20.1 3.9 21 5 21 L 19 21 C 20.1 21 21 20.1 21 19 L 21 5 C 21 3.9 20.1 3 19 3 Z M 14 17 L 7 17 L 7 15 L 14 15 Z M 17 13 L 7 13 L 7 11 L 17 11 Z M 17 9 L 7 9 L 7 7 L 17 7 Z'
               end
-              object BtnTahsilat: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+              object LblBtnSiparisler: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Tahsilat'
-                TextSettings.Font.Size = 11.000000000000000000
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Siparisler''
+                HitTest = False
               end
-              object BtnKuryeTakip: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+            end
+            object RectBtnMusteriler: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFF3E5F5
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnMusterilerClick
+              object PathIconMusteriler: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Kurye Takip'
-                TextSettings.Font.Size = 11.000000000000000000
+                WrapMode = Fit
+                Fill.Color = xFF7B1FA2
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 16 11 C 17.66 11 19 9.66 19 8 C 19 6.34 17.66 5 16 5 C 14.34 5 13 6.34 13 8 C 13 9.66 14.34 11 16 11 Z M 8 11 C 9.66 11 11 9.66 11 8 C 11 6.34 9.66 5 8 5 C 6.34 5 5 6.34 5 8 C 5 9.66 6.34 11 8 11 Z M 8 13 C 5.67 13 1 14.17 1 16.5 L 1 19 L 15 19 L 15 16.5 C 15 14.17 10.33 13 8 13 Z M 16 13 C 15.71 13 15.38 13.02 15.03 13.05 C 16.19 13.89 17 15.02 17 16.5 L 17 19 L 23 19 L 23 16.5 C 23 14.17 18.33 13 16 13 Z'
               end
-              object BtnKasa: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+              object LblBtnMusteriler: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Kasa'
-                TextSettings.Font.Size = 11.000000000000000000
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Musteriler''
+                HitTest = False
               end
-              object BtnStoklar: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+            end
+            object RectBtnTahsilat: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFFFF3E0
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnTahsilatClick
+              object PathIconTahsilat: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Stoklar'
-                TextSettings.Font.Size = 11.000000000000000000
+                WrapMode = Fit
+                Fill.Color = xFFE65100
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 11.8 10.9 C 9.53 10.31 8.8 9.7 8.8 8.75 C 8.8 7.66 9.81 6.9 11.5 6.9 C 13.28 6.9 13.94 7.75 14 9 L 16.21 9 C 16.14 7.28 15.09 5.7 13 5.19 L 13 3 L 10 3 L 10 5.16 C 8.06 5.58 6.5 6.84 6.5 8.77 C 6.5 11.08 8.41 12.23 11.2 12.9 C 13.7 13.5 14.2 14.38 14.2 15.31 C 14.2 16 13.71 17.1 11.5 17.1 C 9.44 17.1 8.63 16.18 8.52 15 L 6.32 15 C 6.44 17.19 8.08 18.42 10 18.83 L 10 21 L 13 21 L 13 18.85 C 14.95 18.48 16.5 17.35 16.5 15.3 C 16.5 12.46 14.07 11.49 11.8 10.9 Z'
               end
-              object BtnRaporlar: TSpeedButton
-                Align = Client
-                Margins.Left = 4.000000000000000000
-                Margins.Top = 4.000000000000000000
-                Margins.Right = 4.000000000000000000
-                Margins.Bottom = 4.000000000000000000
-                Size.Width = 77.500000000000000000
-                Size.Height = 94.000000000000000000
+              object LblBtnTahsilat: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
                 Size.PlatformDefault = False
-                Text = 'Raporlar'
-                TextSettings.Font.Size = 11.000000000000000000
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Tahsilat''
+                HitTest = False
+              end
+            end
+            object RectBtnKuryeTakip: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFE0F2F1
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnKuryeTakipClick
+              object PathIconKuryeTakip: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
+                Size.PlatformDefault = False
+                WrapMode = Fit
+                Fill.Color = xFF00695C
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 20 8 L 17 8 L 17 4 L 3 4 C 1.9 4 1 4.9 1 6 L 1 17 L 3 17 C 3 18.66 4.34 20 6 20 C 7.66 20 9 18.66 9 17 L 15 17 C 15 18.66 16.34 20 18 20 C 19.66 20 21 18.66 21 17 L 23 17 L 23 12 Z M 6 18.5 C 5.17 18.5 4.5 17.83 4.5 17 C 4.5 16.17 5.17 15.5 6 15.5 C 6.83 15.5 7.5 16.17 7.5 17 C 7.5 17.83 6.83 18.5 6 18.5 Z M 19.5 9.5 L 21.46 12 L 17 12 L 17 9.5 Z M 18 18.5 C 17.17 18.5 16.5 17.83 16.5 17 C 16.5 16.17 17.17 15.5 18 15.5 C 18.83 15.5 19.5 16.17 19.5 17 C 19.5 17.83 18.83 18.5 18 18.5 Z'
+              end
+              object LblBtnKuryeTakip: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
+                Size.PlatformDefault = False
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Kurye'#13#10'Takip''
+                HitTest = False
+              end
+            end
+            object RectBtnKasa: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFE8EAF6
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnKasaClick
+              object PathIconKasa: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
+                Size.PlatformDefault = False
+                WrapMode = Fit
+                Fill.Color = xFF283593
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 21 18 L 21 19 C 21 20.1 20.1 21 19 21 L 5 21 C 3.89 21 3 20.1 3 19 L 3 5 C 3 3.9 3.89 3 5 3 L 19 3 C 20.1 3 21 3.9 21 5 L 21 6 L 12 6 C 10.89 6 10 6.9 10 8 L 10 16 C 10 17.1 10.89 18 12 18 Z M 12 16 L 21 16 L 21 8 L 12 8 Z M 16 13.5 C 15.17 13.5 14.5 12.83 14.5 12 C 14.5 11.17 15.17 10.5 16 10.5 C 16.83 10.5 17.5 11.17 17.5 12 C 17.5 12.83 16.83 13.5 16 13.5 Z'
+              end
+              object LblBtnKasa: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
+                Size.PlatformDefault = False
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Kasa''
+                HitTest = False
+              end
+            end
+            object RectBtnStoklar: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFEFEBE9
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnStoklarClick
+              object PathIconStoklar: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
+                Size.PlatformDefault = False
+                WrapMode = Fit
+                Fill.Color = xFF4E342E
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 20 2 L 4 2 C 2.9 2 2 2.9 2 4 L 2 8 C 2 8.74 2.4 9.39 3 9.73 L 3 20 C 3 21.1 3.9 22 5 22 L 19 22 C 20.1 22 21 21.1 21 20 L 21 9.73 C 21.6 9.39 22 8.74 22 8 L 22 4 C 22 2.9 21.1 2 20 2 Z M 14 14 L 10 14 L 10 12 L 14 12 Z M 20 8 L 4 8 L 4 4 L 20 4 Z'
+              end
+              object LblBtnStoklar: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
+                Size.PlatformDefault = False
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Stoklar''
+                HitTest = False
+              end
+            end
+            object RectBtnRaporlar: TRectangle
+              Align = Client
+              Margins.Left = 4.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 4.000000000000000000
+              Margins.Bottom = 4.000000000000000000
+              Fill.Color = xFFFFEBEE
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              Stroke.Kind = None
+              OnClick = BtnRaporlarClick
+              object PathIconRaporlar: TPath
+                Align = Top
+                Margins.Top = 16.000000000000000000
+                Margins.Left = 20.000000000000000000
+                Margins.Right = 20.000000000000000000
+                Size.Width = 43.500000000000000000
+                Size.Height = 36.000000000000000000
+                Size.PlatformDefault = False
+                WrapMode = Fit
+                Fill.Color = xFFC62828
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 19 3 L 5 3 C 3.9 3 3 3.9 3 5 L 3 19 C 3 20.1 3.9 21 5 21 L 19 21 C 20.1 21 21 20.1 21 19 L 21 5 C 21 3.9 20.1 3 19 3 Z M 9 17 L 7 17 L 7 10 L 9 10 Z M 13 17 L 11 17 L 11 7 L 13 7 Z M 17 17 L 15 17 L 15 13 L 17 13 Z'
+              end
+              object LblBtnRaporlar: TLabel
+                Align = Bottom
+                Margins.Bottom = 8.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 28.000000000000000000
+                Size.PlatformDefault = False
+                StyledSettings = [Family]
+                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.FontColor = xFF424242
+                TextSettings.HorzAlign = Center
+                TextSettings.VertAlign = Center
+                Text = ''Raporlar''
+                HitTest = False
               end
             end
           end
@@ -322,27 +547,28 @@ object FrmMain: TFrmMain
         object LayoutDailySummary: TLayout
           Align = Top
           Margins.Left = 16.000000000000000000
-          Margins.Top = 16.000000000000000000
+          Margins.Top = 12.000000000000000000
           Margins.Right = 16.000000000000000000
           Size.Width = 358.000000000000000000
-          Size.Height = 120.000000000000000000
+          Size.Height = 110.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 2
           object LblGunlukOzet: TLabel
             Align = Top
             Size.Width = 358.000000000000000000
-            Size.Height = 24.000000000000000000
+            Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
             StyledSettings = [Family]
-            TextSettings.Font.Size = 16.000000000000000000
+            TextSettings.Font.Size = 15.000000000000000000
             TextSettings.Font.Style = [fsBold]
+            TextSettings.FontColor = xFF212121
             Text = 'Gunluk Ozet'
           end
           object LayoutSummaryCards: TGridPanelLayout
             Align = Client
             Margins.Top = 8.000000000000000000
             Size.Width = 358.000000000000000000
-            Size.Height = 88.000000000000000000
+            Size.Height = 80.000000000000000000
             Size.PlatformDefault = False
             ColumnCollection = <
               item
@@ -385,71 +611,67 @@ object FrmMain: TFrmMain
             TabOrder = 0
             object RectSiparis: TRectangle
               Align = Client
-              Margins.Left = 4.000000000000000000
-              Margins.Right = 4.000000000000000000
+              Margins.Left = 3.000000000000000000
+              Margins.Right = 3.000000000000000000
               Fill.Color = claWhite
               XRadius = 8.000000000000000000
               YRadius = 8.000000000000000000
               Stroke.Color = xFFE0E0E0
               object LblSiparisTitle: TLabel
                 Align = Top
-                Margins.Top = 8.000000000000000000
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Top = 6.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.Font.Size = 9.000000000000000000
                 TextSettings.FontColor = xFF2196F3
                 TextSettings.HorzAlign = Center
                 Text = 'Siparis'
               end
               object LblSiparisCount: TLabel
                 Align = Client
-                Size.Width = 81.500000000000000000
-                Size.Height = 36.000000000000000000
-                Size.PlatformDefault = False
                 StyledSettings = [Family]
                 TextSettings.Font.Size = 20.000000000000000000
                 TextSettings.Font.Style = [fsBold]
+                TextSettings.FontColor = xFF212121
                 TextSettings.HorzAlign = Center
                 Text = '0'
               end
               object LblSiparisSubtitle: TLabel
                 Align = Bottom
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Bottom = 4.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = xFF757575
+                TextSettings.Font.Size = 8.000000000000000000
+                TextSettings.FontColor = xFF9E9E9E
                 TextSettings.HorzAlign = Center
                 Text = 'Bugun'
               end
             end
             object RectCiro: TRectangle
               Align = Client
-              Margins.Left = 4.000000000000000000
-              Margins.Right = 4.000000000000000000
+              Margins.Left = 3.000000000000000000
+              Margins.Right = 3.000000000000000000
               Fill.Color = claWhite
               XRadius = 8.000000000000000000
               YRadius = 8.000000000000000000
               Stroke.Color = xFFE0E0E0
               object LblCiroTitle: TLabel
                 Align = Top
-                Margins.Top = 8.000000000000000000
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Top = 6.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.Font.Size = 9.000000000000000000
                 TextSettings.FontColor = xFF4CAF50
                 TextSettings.HorzAlign = Center
                 Text = 'Ciro'
               end
               object LblCiroValue: TLabel
                 Align = Client
-                Size.Width = 81.500000000000000000
-                Size.Height = 36.000000000000000000
-                Size.PlatformDefault = False
                 StyledSettings = [Family]
-                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.Size = 13.000000000000000000
                 TextSettings.Font.Style = [fsBold]
                 TextSettings.FontColor = xFF4CAF50
                 TextSettings.HorzAlign = Center
@@ -457,41 +679,39 @@ object FrmMain: TFrmMain
               end
               object LblCiroSubtitle: TLabel
                 Align = Bottom
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Bottom = 4.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = xFF757575
+                TextSettings.Font.Size = 8.000000000000000000
+                TextSettings.FontColor = xFF9E9E9E
                 TextSettings.HorzAlign = Center
                 Text = 'Bugun'
               end
             end
             object RectTahsilat: TRectangle
               Align = Client
-              Margins.Left = 4.000000000000000000
-              Margins.Right = 4.000000000000000000
+              Margins.Left = 3.000000000000000000
+              Margins.Right = 3.000000000000000000
               Fill.Color = claWhite
               XRadius = 8.000000000000000000
               YRadius = 8.000000000000000000
               Stroke.Color = xFFE0E0E0
               object LblTahsilatTitle: TLabel
                 Align = Top
-                Margins.Top = 8.000000000000000000
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Top = 6.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.Font.Size = 9.000000000000000000
                 TextSettings.FontColor = xFF2196F3
                 TextSettings.HorzAlign = Center
                 Text = 'Tahsilat'
               end
               object LblTahsilatValue: TLabel
                 Align = Client
-                Size.Width = 81.500000000000000000
-                Size.Height = 36.000000000000000000
-                Size.PlatformDefault = False
                 StyledSettings = [Family]
-                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.Size = 13.000000000000000000
                 TextSettings.Font.Style = [fsBold]
                 TextSettings.FontColor = xFF2196F3
                 TextSettings.HorzAlign = Center
@@ -499,41 +719,39 @@ object FrmMain: TFrmMain
               end
               object LblTahsilatSubtitle: TLabel
                 Align = Bottom
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Bottom = 4.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = xFF757575
+                TextSettings.Font.Size = 8.000000000000000000
+                TextSettings.FontColor = xFF9E9E9E
                 TextSettings.HorzAlign = Center
                 Text = 'Bugun'
               end
             end
             object RectBorc: TRectangle
               Align = Client
-              Margins.Left = 4.000000000000000000
-              Margins.Right = 4.000000000000000000
+              Margins.Left = 3.000000000000000000
+              Margins.Right = 3.000000000000000000
               Fill.Color = claWhite
               XRadius = 8.000000000000000000
               YRadius = 8.000000000000000000
               Stroke.Color = xFFE0E0E0
               object LblBorcTitle: TLabel
                 Align = Top
-                Margins.Top = 8.000000000000000000
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Top = 6.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 10.000000000000000000
+                TextSettings.Font.Size = 9.000000000000000000
                 TextSettings.FontColor = xFFF44336
                 TextSettings.HorzAlign = Center
                 Text = 'Borc'
               end
               object LblBorcValue: TLabel
                 Align = Client
-                Size.Width = 81.500000000000000000
-                Size.Height = 36.000000000000000000
-                Size.PlatformDefault = False
                 StyledSettings = [Family]
-                TextSettings.Font.Size = 14.000000000000000000
+                TextSettings.Font.Size = 13.000000000000000000
                 TextSettings.Font.Style = [fsBold]
                 TextSettings.FontColor = xFFF44336
                 TextSettings.HorzAlign = Center
@@ -541,11 +759,12 @@ object FrmMain: TFrmMain
               end
               object LblBorcSubtitle: TLabel
                 Align = Bottom
-                Size.Width = 81.500000000000000000
-                Size.Height = 16.000000000000000000
+                Margins.Bottom = 4.000000000000000000
+                Size.Width = 83.500000000000000000
+                Size.Height = 14.000000000000000000
                 Size.PlatformDefault = False
-                TextSettings.Font.Size = 9.000000000000000000
-                TextSettings.FontColor = xFF757575
+                TextSettings.Font.Size = 8.000000000000000000
+                TextSettings.FontColor = xFF9E9E9E
                 TextSettings.HorzAlign = Center
                 Text = 'Toplam'
               end
@@ -555,41 +774,45 @@ object FrmMain: TFrmMain
         object LayoutRecentOrders: TLayout
           Align = Top
           Margins.Left = 16.000000000000000000
-          Margins.Top = 16.000000000000000000
+          Margins.Top = 12.000000000000000000
           Margins.Right = 16.000000000000000000
           Size.Width = 358.000000000000000000
-          Size.Height = 250.000000000000000000
+          Size.Height = 280.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 3
           object LayoutRecentHeader: TLayout
             Align = Top
             Size.Width = 358.000000000000000000
-            Size.Height = 30.000000000000000000
+            Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
             object LblSonSiparisler: TLabel
               Align = Left
-              Size.Width = 200.000000000000000000
-              Size.Height = 30.000000000000000000
+              Size.Width = 260.000000000000000000
+              Size.Height = 28.000000000000000000
               Size.PlatformDefault = False
               StyledSettings = [Family]
-              TextSettings.Font.Size = 16.000000000000000000
+              TextSettings.Font.Size = 15.000000000000000000
               TextSettings.Font.Style = [fsBold]
-              Text = 'Son Siparisler'
+              TextSettings.FontColor = xFF212121
+              Text = 'Teslim Edilmemis Siparisler'
             end
             object BtnTumuSiparisler: TSpeedButton
               Align = Right
               Size.Width = 60.000000000000000000
-              Size.Height = 30.000000000000000000
+              Size.Height = 28.000000000000000000
               Size.PlatformDefault = False
               Text = 'Tumu >'
+              StyledSettings = [Family]
+              TextSettings.Font.Size = 12.000000000000000000
               TextSettings.FontColor = xFF1976D2
+              OnClick = BtnTumuSiparislerClick
             end
           end
           object ListViewRecentOrders: TListView
             Align = Client
             Margins.Top = 8.000000000000000000
             Size.Width = 358.000000000000000000
-            Size.Height = 212.000000000000000000
+            Size.Height = 244.000000000000000000
             Size.PlatformDefault = False
             ItemAppearanceClassName = 'TListItemAppearance'
             ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
@@ -635,27 +858,27 @@ object FrmMain: TFrmMain
           ControlCollection = <
             item
               Column = 0
-              Control = BtnTabAnaSayfa
+              Control = LayoutNavAnaSayfa
               Row = 0
             end
             item
               Column = 1
-              Control = BtnTabSiparisler
+              Control = LayoutNavSiparisler
               Row = 0
             end
             item
               Column = 2
-              Control = BtnTabYeniSiparis
+              Control = LayoutNavYeniSiparis
               Row = 0
             end
             item
               Column = 3
-              Control = BtnTabBildirimler
+              Control = LayoutNavBildirimler
               Row = 0
             end
             item
               Column = 4
-              Control = BtnTabAyarlar
+              Control = LayoutNavAyarlar
               Row = 0
             end>
           RowCollection = <
@@ -663,51 +886,156 @@ object FrmMain: TFrmMain
               Value = 100.000000000000000000
             end>
           TabOrder = 0
-          object BtnTabAnaSayfa: TSpeedButton
+          object LayoutNavAnaSayfa: TLayout
             Align = Client
-            Size.Width = 78.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = 'Ana Sayfa'
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = xFF1565C0
+            HitTest = True
+            OnClick = BtnTabAnaSayfaClick
+            object PathNavAnaSayfa: TPath
+              Align = Top
+              Margins.Top = 8.000000000000000000
+              Margins.Left = 20.000000000000000000
+              Margins.Right = 20.000000000000000000
+              Size.Width = 38.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Fit
+              Fill.Color = xFF1565C0
+              Stroke.Kind = None
+              HitTest = False
+              Data.Path = 'M 10 20 L 10 14 L 14 14 L 14 20 L 19 20 L 19 12 L 22 12 L 12 3 L 2 12 L 5 12 L 5 20 Z'
+            end
+            object LblNavAnaSayfa: TLabel
+              Align = Bottom
+              Margins.Bottom = 4.000000000000000000
+              Size.Width = 78.000000000000000000
+              Size.Height = 16.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = xFF1565C0
+              TextSettings.HorzAlign = Center
+              Text = 'Ana Sayfa'
+              HitTest = False
+            end
           end
-          object BtnTabSiparisler: TSpeedButton
+          object LayoutNavSiparisler: TLayout
             Align = Client
-            Size.Width = 78.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = 'Siparisler'
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = xFF757575
+            HitTest = True
+            OnClick = BtnTabSiparislerClick
+            object PathNavSiparisler: TPath
+              Align = Top
+              Margins.Top = 8.000000000000000000
+              Margins.Left = 20.000000000000000000
+              Margins.Right = 20.000000000000000000
+              Size.Width = 38.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Fit
+              Fill.Color = xFF9E9E9E
+              Stroke.Kind = None
+              HitTest = False
+              Data.Path = 'M 19 3 L 5 3 C 3.9 3 3 3.9 3 5 L 3 19 C 3 20.1 3.9 21 5 21 L 19 21 C 20.1 21 21 20.1 21 19 L 21 5 C 21 3.9 20.1 3 19 3 Z M 14 17 L 7 17 L 7 15 L 14 15 Z M 17 13 L 7 13 L 7 11 L 17 11 Z M 17 9 L 7 9 L 7 7 L 17 7 Z'
+            end
+            object LblNavSiparisler: TLabel
+              Align = Bottom
+              Margins.Bottom = 4.000000000000000000
+              Size.Width = 78.000000000000000000
+              Size.Height = 16.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = xFF9E9E9E
+              TextSettings.HorzAlign = Center
+              Text = 'Siparisler'
+              HitTest = False
+            end
           end
-          object BtnTabYeniSiparis: TSpeedButton
+          object LayoutNavYeniSiparis: TLayout
             Align = Client
-            Size.Width = 78.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = '+'
-            StyledSettings = [Family]
-            TextSettings.Font.Size = 28.000000000000000000
-            TextSettings.FontColor = claWhite
+            HitTest = True
+            OnClick = BtnTabYeniSiparisClick
+            object RectNavYeniSiparis: TRectangle
+              Align = Center
+              Size.Width = 44.000000000000000000
+              Size.Height = 44.000000000000000000
+              Size.PlatformDefault = False
+              Fill.Color = xFF1565C0
+              XRadius = 22.000000000000000000
+              YRadius = 22.000000000000000000
+              Stroke.Kind = None
+              HitTest = False
+              object PathNavYeniSiparis: TPath
+                Align = Center
+                Size.Width = 24.000000000000000000
+                Size.Height = 24.000000000000000000
+                Size.PlatformDefault = False
+                WrapMode = Fit
+                Fill.Color = claWhite
+                Stroke.Kind = None
+                HitTest = False
+                Data.Path = 'M 19 13 L 13 13 L 13 19 L 11 19 L 11 13 L 5 13 L 5 11 L 11 11 L 11 5 L 13 5 L 13 11 L 19 11 Z'
+              end
+            end
           end
-          object BtnTabBildirimler: TSpeedButton
+          object LayoutNavBildirimler: TLayout
             Align = Client
-            Size.Width = 78.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = 'Bildirimler'
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = xFF757575
+            HitTest = True
+            OnClick = BtnTabBildirimlerClick
+            object PathNavBildirimler: TPath
+              Align = Top
+              Margins.Top = 8.000000000000000000
+              Margins.Left = 20.000000000000000000
+              Margins.Right = 20.000000000000000000
+              Size.Width = 38.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Fit
+              Fill.Color = xFF9E9E9E
+              Stroke.Kind = None
+              HitTest = False
+              Data.Path = 'M 12 22 C 13.1 22 14 21.1 14 20 L 10 20 C 10 21.1 10.9 22 12 22 Z M 18 16 L 18 11 C 18 7.93 16.36 5.36 13.5 4.68 L 13.5 4 C 13.5 3.17 12.83 2.5 12 2.5 C 11.17 2.5 10.5 3.17 10.5 4 L 10.5 4.68 C 7.63 5.36 6 7.92 6 11 L 6 16 L 4 18 L 4 19 L 20 19 L 20 18 Z'
+            end
+            object LblNavBildirimler: TLabel
+              Align = Bottom
+              Margins.Bottom = 4.000000000000000000
+              Size.Width = 78.000000000000000000
+              Size.Height = 16.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = xFF9E9E9E
+              TextSettings.HorzAlign = Center
+              Text = 'Bildirimler'
+              HitTest = False
+            end
           end
-          object BtnTabAyarlar: TSpeedButton
+          object LayoutNavAyarlar: TLayout
             Align = Client
-            Size.Width = 78.000000000000000000
-            Size.Height = 60.000000000000000000
-            Size.PlatformDefault = False
-            Text = 'Ayarlar'
-            TextSettings.Font.Size = 10.000000000000000000
-            TextSettings.FontColor = xFF757575
+            HitTest = True
+            OnClick = BtnTabAyarlarClick
+            object PathNavAyarlar: TPath
+              Align = Top
+              Margins.Top = 8.000000000000000000
+              Margins.Left = 20.000000000000000000
+              Margins.Right = 20.000000000000000000
+              Size.Width = 38.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Fit
+              Fill.Color = xFF9E9E9E
+              Stroke.Kind = None
+              HitTest = False
+              Data.Path = 'M 19.14 12.94 C 19.18 12.64 19.2 12.33 19.2 12 C 19.2 11.68 19.18 11.36 19.13 11.06 L 21.16 9.48 C 21.34 9.34 21.39 9.07 21.28 8.87 L 19.36 5.55 C 19.24 5.33 18.99 5.26 18.77 5.33 L 16.38 6.29 C 15.88 5.91 15.35 5.59 14.76 5.35 L 14.4 2.81 C 14.36 2.57 14.16 2.4 13.92 2.4 L 10.08 2.4 C 9.84 2.4 9.65 2.57 9.61 2.81 L 9.25 5.35 C 8.66 5.59 8.12 5.92 7.63 6.29 L 5.24 5.33 C 5.02 5.25 4.77 5.33 4.65 5.55 L 2.74 8.87 C 2.62 9.08 2.66 9.34 2.86 9.48 L 4.89 11.06 C 4.84 11.36 4.8 11.69 4.8 12 C 4.8 12.31 4.82 12.64 4.87 12.94 L 2.84 14.52 C 2.66 14.66 2.61 14.93 2.72 15.13 L 4.64 18.45 C 4.76 18.67 5.01 18.74 5.23 18.67 L 7.62 17.71 C 8.12 18.09 8.65 18.41 9.24 18.65 L 9.6 21.19 C 9.65 21.43 9.84 21.6 10.08 21.6 L 13.92 21.6 C 14.16 21.6 14.36 21.43 14.4 21.19 L 14.76 18.65 C 15.35 18.41 15.89 18.09 16.38 17.71 L 18.77 18.67 C 18.99 18.75 19.24 18.67 19.36 18.45 L 21.28 15.13 C 21.39 14.91 21.34 14.66 21.16 14.52 Z M 12 15.6 C 10.02 15.6 8.4 13.98 8.4 12 C 8.4 10.02 10.02 8.4 12 8.4 C 13.98 8.4 15.6 10.02 15.6 12 C 15.6 13.98 13.98 15.6 12 15.6 Z'
+            end
+            object LblNavAyarlar: TLabel
+              Align = Bottom
+              Margins.Bottom = 4.000000000000000000
+              Size.Width = 78.000000000000000000
+              Size.Height = 16.000000000000000000
+              Size.PlatformDefault = False
+              TextSettings.Font.Size = 9.000000000000000000
+              TextSettings.FontColor = xFF9E9E9E
+              TextSettings.HorzAlign = Center
+              Text = 'Ayarlar'
+              HitTest = False
+            end
           end
         end
       end

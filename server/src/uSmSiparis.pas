@@ -34,6 +34,9 @@ type
 
     /// <summary>Son siparisler (dashboard icin)</summary>
     function GetSonSiparisler(ALimit: Integer): TJSONObject;
+
+    /// <summary>Teslim edilmemis siparisler (Hazirlaniyor + Yolda)</summary>
+    function GetTeslimEdilmemisSiparisler(ALimit: Integer): TJSONObject;
   end;
   {$METHODINFO OFF}
 
@@ -420,6 +423,53 @@ begin
 
     Result.AddPair('success', TJSONBool.Create(True));
     Result.AddPair('data', LArray);
+  finally
+    LQuery.Free;
+  end;
+end;
+
+function TSmSiparis.GetTeslimEdilmemisSiparisler(ALimit: Integer): TJSONObject;
+var
+  LQuery: TFDQuery;
+  LArray: TJSONArray;
+  LObj: TJSONObject;
+begin
+  Result := TJSONObject.Create;
+  LArray := TJSONArray.Create;
+  if ALimit < 1 then ALimit := 50;
+
+  LQuery := DM.GetQuery;
+  try
+    LQuery.SQL.Text :=
+      'SELECT TOP(:Limit) SiparisID, SiparisNo, CariAdi, Telefon, Durum, ' +
+      '  GenelToplam, SiparisTarih, DagitimDurum, SiparisKaynak, OdemeTipi, Adres ' +
+      'FROM TupSuSiparisBaslik ' +
+      'WHERE Durum NOT IN (''Teslim Edildi'', ''Iptal'') ' +
+      'ORDER BY SiparisTarih DESC';
+    LQuery.ParamByName('Limit').AsInteger := ALimit;
+    LQuery.Open;
+
+    while not LQuery.Eof do
+    begin
+      LObj := TJSONObject.Create;
+      LObj.AddPair('siparisId', TJSONNumber.Create(LQuery.FieldByName('SiparisID').AsLargeInt));
+      LObj.AddPair('siparisNo', LQuery.FieldByName('SiparisNo').AsString);
+      LObj.AddPair('cariAdi', LQuery.FieldByName('CariAdi').AsString);
+      LObj.AddPair('telefon', LQuery.FieldByName('Telefon').AsString);
+      LObj.AddPair('durum', LQuery.FieldByName('Durum').AsString);
+      LObj.AddPair('genelToplam', TJSONNumber.Create(LQuery.FieldByName('GenelToplam').AsCurrency));
+      LObj.AddPair('siparisTarih', DateToISO8601(LQuery.FieldByName('SiparisTarih').AsDateTime));
+      LObj.AddPair('dagitimDurum', LQuery.FieldByName('DagitimDurum').AsString);
+      LObj.AddPair('siparisKaynak', LQuery.FieldByName('SiparisKaynak').AsString);
+      LObj.AddPair('odemeTipi', LQuery.FieldByName('OdemeTipi').AsString);
+      LObj.AddPair('adres', LQuery.FieldByName('Adres').AsString);
+      LArray.AddElement(LObj);
+      LQuery.Next;
+    end;
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('data', LArray);
+    Result.AddPair('toplam', TJSONNumber.Create(LArray.Count));
   finally
     LQuery.Free;
   end;

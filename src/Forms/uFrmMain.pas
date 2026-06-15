@@ -17,7 +17,9 @@ type
     LayoutHeader: TLayout;
     RectHeader: TRectangle;
     LblAppTitle: TLabel;
+    PathMenuIcon: TPath;
     BtnMenu: TSpeedButton;
+    PathNotifIcon: TPath;
     BtnNotification: TSpeedButton;
     LayoutContent: TLayout;
     ScrollContent: TVertScrollBox;
@@ -27,16 +29,31 @@ type
     LblUserName: TLabel;
     LblBayiName: TLabel;
     LayoutQuickActions: TLayout;
-    RectQuickActions: TRectangle;
     GridActions: TGridPanelLayout;
-    BtnYeniSiparis: TSpeedButton;
-    BtnSiparisler: TSpeedButton;
-    BtnMusteriler: TSpeedButton;
-    BtnTahsilat: TSpeedButton;
-    BtnKuryeTakip: TSpeedButton;
-    BtnKasa: TSpeedButton;
-    BtnStoklar: TSpeedButton;
-    BtnRaporlar: TSpeedButton;
+    RectBtnYeniSiparis: TRectangle;
+    PathIconYeniSiparis: TPath;
+    LblBtnYeniSiparis: TLabel;
+    RectBtnSiparisler: TRectangle;
+    PathIconSiparisler: TPath;
+    LblBtnSiparisler: TLabel;
+    RectBtnMusteriler: TRectangle;
+    PathIconMusteriler: TPath;
+    LblBtnMusteriler: TLabel;
+    RectBtnTahsilat: TRectangle;
+    PathIconTahsilat: TPath;
+    LblBtnTahsilat: TLabel;
+    RectBtnKuryeTakip: TRectangle;
+    PathIconKuryeTakip: TPath;
+    LblBtnKuryeTakip: TLabel;
+    RectBtnKasa: TRectangle;
+    PathIconKasa: TPath;
+    LblBtnKasa: TLabel;
+    RectBtnStoklar: TRectangle;
+    PathIconStoklar: TPath;
+    LblBtnStoklar: TLabel;
+    RectBtnRaporlar: TRectangle;
+    PathIconRaporlar: TPath;
+    LblBtnRaporlar: TLabel;
     LayoutDailySummary: TLayout;
     LblGunlukOzet: TLabel;
     LayoutSummaryCards: TGridPanelLayout;
@@ -64,11 +81,21 @@ type
     LayoutBottomNav: TLayout;
     RectBottomNav: TRectangle;
     GridBottomNav: TGridPanelLayout;
-    BtnTabAnaSayfa: TSpeedButton;
-    BtnTabSiparisler: TSpeedButton;
-    BtnTabYeniSiparis: TSpeedButton;
-    BtnTabBildirimler: TSpeedButton;
-    BtnTabAyarlar: TSpeedButton;
+    LayoutNavAnaSayfa: TLayout;
+    PathNavAnaSayfa: TPath;
+    LblNavAnaSayfa: TLabel;
+    LayoutNavSiparisler: TLayout;
+    PathNavSiparisler: TPath;
+    LblNavSiparisler: TLabel;
+    LayoutNavYeniSiparis: TLayout;
+    RectNavYeniSiparis: TRectangle;
+    PathNavYeniSiparis: TPath;
+    LayoutNavBildirimler: TLayout;
+    PathNavBildirimler: TPath;
+    LblNavBildirimler: TLabel;
+    LayoutNavAyarlar: TLayout;
+    PathNavAyarlar: TPath;
+    LblNavAyarlar: TLabel;
     procedure BtnYeniSiparisClick(Sender: TObject);
     procedure BtnSiparislerClick(Sender: TObject);
     procedure BtnMusterilerClick(Sender: TObject);
@@ -90,7 +117,7 @@ type
     FRecentOrders: TOrderList;
     FCurrentTab: Integer;
     procedure LoadDailySummary;
-    procedure LoadRecentOrders;
+    procedure LoadTeslimEdilmemisSiparisler;
     procedure UpdateSummaryUI;
     procedure UpdateRecentOrdersUI;
     procedure SetActiveTab(AIndex: Integer);
@@ -133,7 +160,7 @@ end;
 procedure TFrmMain.RefreshData;
 begin
   LoadDailySummary;
-  LoadRecentOrders;
+  LoadTeslimEdilmemisSiparisler;
 end;
 
 procedure TFrmMain.LoadDailySummary;
@@ -157,7 +184,7 @@ begin
   UpdateSummaryUI;
 end;
 
-procedure TFrmMain.LoadRecentOrders;
+procedure TFrmMain.LoadTeslimEdilmemisSiparisler;
 var
   LResponse: TApiResponse;
   LData: TJSONObject;
@@ -166,7 +193,7 @@ var
   I: Integer;
 begin
   FRecentOrders.Clear;
-  LResponse := ApiService.Get('rest/TSmSiparis/GetSonSiparisler/5');
+  LResponse := ApiService.Get('rest/TSmSiparis/GetTeslimEdilmemisSiparisler/50');
   try
     if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
     begin
@@ -180,6 +207,7 @@ begin
           LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
           LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
           LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
+          LOrder.DurumText := (LArray.Items[I] as TJSONObject).GetValue<string>('durum', '');
           FRecentOrders.Add(LOrder);
         end;
       end;
@@ -208,26 +236,44 @@ begin
   begin
     LItem := ListViewRecentOrders.Items.Add;
     LItem.Text := FRecentOrders[I].MusteriAdi;
-    LItem.Detail := FRecentOrders[I].GetFormattedToplam;
+    LItem.Detail := FRecentOrders[I].GetDurumText + ' - ' + FRecentOrders[I].GetFormattedToplam;
     LItem.Tag := FRecentOrders[I].Id;
   end;
 end;
 
 procedure TFrmMain.SetActiveTab(AIndex: Integer);
 const
-  COLOR_INACTIVE = $FF757575;
+  COLOR_ACTIVE = $FF1565C0;
+  COLOR_INACTIVE = $FF9E9E9E;
 begin
   FCurrentTab := AIndex;
-  BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  BtnTabSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  BtnTabBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
-  BtnTabAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+
+  PathNavAnaSayfa.Fill.Color := TAlphaColor(COLOR_INACTIVE);
+  LblNavAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  PathNavSiparisler.Fill.Color := TAlphaColor(COLOR_INACTIVE);
+  LblNavSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  PathNavBildirimler.Fill.Color := TAlphaColor(COLOR_INACTIVE);
+  LblNavBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  PathNavAyarlar.Fill.Color := TAlphaColor(COLOR_INACTIVE);
+  LblNavAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
 
   case AIndex of
-    0: BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
-    1: BtnTabSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
-    3: BtnTabBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
-    4: BtnTabAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
+    0: begin
+      PathNavAnaSayfa.Fill.Color := TAlphaColor(COLOR_ACTIVE);
+      LblNavAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
+    end;
+    1: begin
+      PathNavSiparisler.Fill.Color := TAlphaColor(COLOR_ACTIVE);
+      LblNavSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
+    end;
+    3: begin
+      PathNavBildirimler.Fill.Color := TAlphaColor(COLOR_ACTIVE);
+      LblNavBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
+    end;
+    4: begin
+      PathNavAyarlar.Fill.Color := TAlphaColor(COLOR_ACTIVE);
+      LblNavAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_ACTIVE);
+    end;
   end;
 end;
 

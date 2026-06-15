@@ -47,6 +47,8 @@ type
     FOlusturmaTarihi: TDateTime;
     FTeslimTarihi: TDateTime;
     FKuryeId: Integer;
+    FToplam: Currency;
+    FDurumText: string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -76,6 +78,8 @@ type
     property OlusturmaTarihi: TDateTime read FOlusturmaTarihi write FOlusturmaTarihi;
     property TeslimTarihi: TDateTime read FTeslimTarihi write FTeslimTarihi;
     property KuryeId: Integer read FKuryeId write FKuryeId;
+    property Toplam: Currency read FToplam write FToplam;
+    property DurumText: string read FDurumText write FDurumText;
   end;
 
   TOrderList = TObjectList<TOrder>;
@@ -236,9 +240,14 @@ function TOrder.GetToplamTutar: Currency;
 var
   I: Integer;
 begin
-  Result := 0;
-  for I := 0 to FItems.Count - 1 do
-    Result := Result + FItems[I].GetToplam;
+  if FToplam > 0 then
+    Result := FToplam
+  else
+  begin
+    Result := 0;
+    for I := 0 to FItems.Count - 1 do
+      Result := Result + FItems[I].GetToplam;
+  end;
 end;
 
 function TOrder.GetFormattedToplam: string;
@@ -248,6 +257,11 @@ end;
 
 function TOrder.GetDurumText: string;
 begin
+  if FDurumText <> '' then
+  begin
+    Result := FDurumText;
+    Exit;
+  end;
   case FDurum of
     osHazirlaniyor: Result := 'Haz' + Chr($0131) + 'rlan' + Chr($0131) + 'yor';
     osYolda: Result := 'Yolda';
