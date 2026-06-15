@@ -4,7 +4,9 @@ interface
 
 const
   // API Configuration
-  API_BASE_URL = 'http://localhost:8080/api';
+  // DataSnap REST API - VDS sunucu adresi
+  // Derleme oncesi kendi sunucu IP'nizi buraya yazin
+  API_BASE_URL = 'http://2.56.152.155:8080/datasnap/';
   API_VERSION = 'v1';
   API_TIMEOUT = 30000; // 30 seconds
 

@@ -14,11 +14,14 @@ uses
 type
   TDMAuth = class(TDataModule)
     FDConnectionAuth: TFDConnection;
+    FDPhysMSSQLDriverLink1: TFDPhysMSSQLDriverLink;
     procedure DataModuleCreate(Sender: TObject);
   private
+    FConnected: Boolean;
     procedure ConfigureAuthConnection;
   public
     function GetAuthQuery: TFDQuery;
+    property Connected: Boolean read FConnected;
   end;
 
 var
@@ -32,8 +35,16 @@ implementation
 
 procedure TDMAuth.DataModuleCreate(Sender: TObject);
 begin
-  ConfigureAuthConnection;
-  FDConnectionAuth.Connected := True;
+  FConnected := False;
+  try
+    ConfigureAuthConnection;
+    FDConnectionAuth.Connected := True;
+    FConnected := True;
+    WriteLn('[DMAuth] ERP_AUTH veritabanina baglandi.');
+  except
+    on E: Exception do
+      WriteLn('[DMAuth] HATA - ERP_AUTH baglanti basarisiz: ' + E.Message);
+  end;
 end;
 
 procedure TDMAuth.ConfigureAuthConnection;
@@ -58,6 +69,8 @@ end;
 
 function TDMAuth.GetAuthQuery: TFDQuery;
 begin
+  if not FConnected then
+    raise Exception.Create('ERP_AUTH veritabanina baglanilmamis. Sunucu ayarlarini kontrol edin.');
   Result := TFDQuery.Create(nil);
   Result.Connection := FDConnectionAuth;
 end;

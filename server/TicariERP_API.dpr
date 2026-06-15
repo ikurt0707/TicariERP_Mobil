@@ -31,6 +31,12 @@ begin
   if ParamCount > 0 then
     LPort := StrToIntDef(ParamStr(1), 8080);
 
+  // DataModule'leri olustur (Console app'te otomatik olusturulmazlar)
+  WriteLn('DataModule''ler olusturuluyor...');
+  DM := TDM.Create(nil);
+  WriteLn('[DM] Tenant DataModule olusturuldu.');
+  DMAuth := TDMAuth.Create(nil);
+
   LServer := TIdHTTPWebBrokerBridge.Create(nil);
   try
     LServer.DefaultPort := LPort;
@@ -40,6 +46,8 @@ begin
     ReadLn;
   finally
     LServer.Free;
+    DMAuth.Free;
+    DM.Free;
   end;
 end;
 
