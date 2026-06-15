@@ -1,0 +1,99 @@
+object FrmMusteriSec: TFrmMusteriSec
+  Left = 0
+  Top = 0
+  Caption = 'Musteri Sec'
+  ClientHeight = 640
+  ClientWidth = 360
+  Fill.Color = xFFF5F5F5
+  FormFactor.Width = 360
+  FormFactor.Height = 640
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  DesignerMasterStyle = 0
+  object LayoutMain: TLayout
+    Align = Client
+    Size.Width = 360.000000000000000000
+    Size.Height = 640.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object LayoutHeader: TLayout
+      Align = Top
+      Size.Width = 360.000000000000000000
+      Size.Height = 56.000000000000000000
+      Size.PlatformDefault = False
+      object RectHeader: TRectangle
+        Align = Client
+        Fill.Color = xFF1565C0
+        Stroke.Kind = None
+        Size.Width = 360.000000000000000000
+        Size.Height = 56.000000000000000000
+        Size.PlatformDefault = False
+        object BtnGeri: TSpeedButton
+          Align = Left
+          Size.Width = 48.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          Text = '<'
+          StyledSettings = [Family, Size]
+          TextSettings.FontColor = xFFFFFFFF
+          OnClick = BtnGeriClick
+        end
+        object LblTitle: TLabel
+          Align = Client
+          StyledSettings = [Family]
+          TextSettings.Font.Size = 18.000000000000000000
+          TextSettings.FontColor = xFFFFFFFF
+          TextSettings.HorzAlign = Leading
+          Text = 'Musteri Sec'
+          TabOrder = 1
+        end
+      end
+    end
+    object LayoutSearch: TLayout
+      Align = Top
+      Position.Y = 56.000000000000000000
+      Size.Width = 360.000000000000000000
+      Size.Height = 56.000000000000000000
+      Size.PlatformDefault = False
+      Margins.Left = 12.000000000000000000
+      Margins.Right = 12.000000000000000000
+      Margins.Top = 8.000000000000000000
+      Margins.Bottom = 8.000000000000000000
+      object RectSearchBg: TRectangle
+        Align = Client
+        Fill.Color = xFFFFFFFF
+        Stroke.Color = xFFE0E0E0
+        XRadius = 8.000000000000000000
+        YRadius = 8.000000000000000000
+        Size.Width = 336.000000000000000000
+        Size.Height = 56.000000000000000000
+        Size.PlatformDefault = False
+        object EdtSearch: TSearchBox
+          Align = Client
+          Size.Width = 336.000000000000000000
+          Size.Height = 56.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          TextPrompt = 'Ad, telefon veya kod ile ara...'
+          OnChangeTracking = EdtSearchChangeTracking
+        end
+      end
+    end
+    object LayoutContent: TLayout
+      Align = Client
+      Size.Width = 360.000000000000000000
+      Size.Height = 528.000000000000000000
+      Size.PlatformDefault = False
+      object ListViewMusteriler: TListView
+        Align = Client
+        Size.Width = 360.000000000000000000
+        Size.Height = 528.000000000000000000
+        Size.PlatformDefault = False
+        ItemAppearanceClassName = 'TListItemAppearance'
+        ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+        HeaderAppearanceClassName = 'TListHeaderObjects'
+        FooterAppearanceClassName = 'TListHeaderObjects'
+        OnItemClick = ListViewMusterilerItemClick
+      end
+    end
+  end
+end

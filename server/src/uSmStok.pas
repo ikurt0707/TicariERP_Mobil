@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.JSON,
-  Datasnap.DSServer, Datasnap.DSAuth,
+  Datasnap.DSServer, Datasnap.DSAuth, Datasnap.DSProviderDataModuleAdapter,
   FireDAC.Comp.Client;
 
 type

@@ -4,14 +4,14 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.JSON,
-  Datasnap.DSServer, Datasnap.DSAuth,
+  Datasnap.DSServer, Datasnap.DSAuth, Datasnap.DSProviderDataModuleAdapter,
   FireDAC.Comp.Client;
 
 type
   {$METHODINFO ON}
   TSmAuth = class(TDSServerModule)
   public
-    /// <summary>Kullanici giris (basit token donus)</summary>
+    /// <summary>Login - ERP_AUTH.AuthUser dogrulama, TenantDatabase bilgisi donus</summary>
     function Login(AKullaniciAdi, ASifre: string): TJSONObject;
 
     /// <summary>Token dogrulama</summary>
@@ -23,7 +23,7 @@ type
     /// <summary>Rol yetkileri</summary>
     function GetRolYetkiler(ARolID: Integer): TJSONObject;
 
-    /// <summary>Sirket bilgisi</summary>
+    /// <summary>Sirket bilgisi (tenant DB uzerinden)</summary>
     function GetSirketBilgi: TJSONObject;
 
     /// <summary>Server durum kontrolu (health check)</summary>
@@ -34,18 +34,19 @@ type
 implementation
 
 uses
-  uDM, System.DateUtils, System.Hash;
+  uDM, uDMAuth, System.DateUtils, System.Hash;
 
 function TSmAuth.Login(AKullaniciAdi, ASifre: string): TJSONObject;
 var
   LQuery: TFDQuery;
-  LToken: string;
+  LToken, LSifreHash: string;
+  LUserObj, LTenantObj, LDbObj: TJSONObject;
+  LTenantID, LRolID, LUserID: Integer;
+  LAdSoyad: string;
+  LKurye, LSistemAdmin: Boolean;
 begin
   Result := TJSONObject.Create;
 
-  // Simple authentication - in production use proper hashing
-  // For now check against Ayarlar or a simple user store
-  // Since there's no Kullanici table visible, we use a simple check
   if (AKullaniciAdi = '') or (ASifre = '') then
   begin
     Result.AddPair('success', TJSONBool.Create(False));
@@ -53,22 +54,115 @@ begin
     Exit;
   end;
 
-  // Generate a simple token (in production use JWT)
-  LToken := THashSHA2.GetHashString(
-    AKullaniciAdi + FormatDateTime('yyyymmddhhnnsszzz', Now) + ASifre,
-    THashSHA2.TSHA2Version.SHA256
-  );
+  // Hash the password (SHA256)
+  LSifreHash := THashSHA2.GetHashString(ASifre, THashSHA2.TSHA2Version.SHA256);
 
-  Result.AddPair('success', TJSONBool.Create(True));
-  Result.AddPair('token', LToken);
-  Result.AddPair('kullaniciAdi', AKullaniciAdi);
-  Result.AddPair('expiresIn', TJSONNumber.Create(86400)); // 24 hours
+  LQuery := DMAuth.GetAuthQuery;
+  try
+    // Check user in ERP_AUTH.AuthUser
+    LQuery.SQL.Text :=
+      'SELECT au.AuthUserID, au.TenantID, au.KullaniciAdi, au.AdSoyad, au.RolID, ' +
+      '  au.Aktif, au.SistemAdmin, au.Kurye ' +
+      'FROM AuthUser au ' +
+      'WHERE au.KullaniciAdi = :KulAdi AND au.SifreHash = :SifreHash AND au.Aktif = 1';
+    LQuery.ParamByName('KulAdi').AsString := AKullaniciAdi;
+    LQuery.ParamByName('SifreHash').AsString := LSifreHash;
+    LQuery.Open;
+
+    if LQuery.IsEmpty then
+    begin
+      Result.AddPair('success', TJSONBool.Create(False));
+      Result.AddPair('message', 'Kullanici adi veya sifre hatali');
+      Exit;
+    end;
+
+    LUserID := LQuery.FieldByName('AuthUserID').AsInteger;
+    LTenantID := LQuery.FieldByName('TenantID').AsInteger;
+    LAdSoyad := LQuery.FieldByName('AdSoyad').AsString;
+    LRolID := LQuery.FieldByName('RolID').AsInteger;
+    LKurye := LQuery.FieldByName('Kurye').AsBoolean;
+    LSistemAdmin := LQuery.FieldByName('SistemAdmin').AsBoolean;
+
+    // Get Tenant info
+    LQuery.Close;
+    LQuery.SQL.Text :=
+      'SELECT TenantKod, TenantAdi, FaaliyetKonusu, LisansBitis FROM Tenant WHERE TenantID = :TID AND Aktif = 1';
+    LQuery.ParamByName('TID').AsInteger := LTenantID;
+    LQuery.Open;
+
+    if LQuery.IsEmpty then
+    begin
+      Result.AddPair('success', TJSONBool.Create(False));
+      Result.AddPair('message', 'Tenant aktif degil veya bulunamadi');
+      Exit;
+    end;
+
+    LTenantObj := TJSONObject.Create;
+    LTenantObj.AddPair('tenantId', TJSONNumber.Create(LTenantID));
+    LTenantObj.AddPair('tenantKod', LQuery.FieldByName('TenantKod').AsString);
+    LTenantObj.AddPair('tenantAdi', LQuery.FieldByName('TenantAdi').AsString);
+    LTenantObj.AddPair('faaliyetKonusu', LQuery.FieldByName('FaaliyetKonusu').AsString);
+
+    // Get TenantDatabase connection info
+    LQuery.Close;
+    LQuery.SQL.Text :=
+      'SELECT TenantDatabaseID, DbServer, DbName, DbUser, DbPassword, VarsayilanSirketID ' +
+      'FROM TenantDatabase WHERE TenantID = :TID AND Aktif = 1';
+    LQuery.ParamByName('TID').AsInteger := LTenantID;
+    LQuery.Open;
+
+    if LQuery.IsEmpty then
+    begin
+      Result.AddPair('success', TJSONBool.Create(False));
+      Result.AddPair('message', 'Tenant veritabani yapilandirmasi bulunamadi');
+      LTenantObj.Free;
+      Exit;
+    end;
+
+    LDbObj := TJSONObject.Create;
+    LDbObj.AddPair('dbServer', LQuery.FieldByName('DbServer').AsString);
+    LDbObj.AddPair('dbName', LQuery.FieldByName('DbName').AsString);
+    LDbObj.AddPair('dbUser', LQuery.FieldByName('DbUser').AsString);
+    LDbObj.AddPair('dbPassword', LQuery.FieldByName('DbPassword').AsString);
+    LDbObj.AddPair('varsayilanSirketId', TJSONNumber.Create(LQuery.FieldByName('VarsayilanSirketID').AsInteger));
+
+    // Generate token
+    LToken := THashSHA2.GetHashString(
+      IntToStr(LUserID) + AKullaniciAdi + FormatDateTime('yyyymmddhhnnsszzz', Now),
+      THashSHA2.TSHA2Version.SHA256
+    );
+
+    // Connect to tenant DB dynamically
+    DM.ConnectToTenantDB(
+      LQuery.FieldByName('DbServer').AsString,
+      LQuery.FieldByName('DbName').AsString,
+      LQuery.FieldByName('DbUser').AsString,
+      LQuery.FieldByName('DbPassword').AsString
+    );
+
+    // Build user info
+    LUserObj := TJSONObject.Create;
+    LUserObj.AddPair('userId', TJSONNumber.Create(LUserID));
+    LUserObj.AddPair('kullaniciAdi', AKullaniciAdi);
+    LUserObj.AddPair('adSoyad', LAdSoyad);
+    LUserObj.AddPair('rolId', TJSONNumber.Create(LRolID));
+    LUserObj.AddPair('kurye', TJSONBool.Create(LKurye));
+    LUserObj.AddPair('sistemAdmin', TJSONBool.Create(LSistemAdmin));
+
+    Result.AddPair('success', TJSONBool.Create(True));
+    Result.AddPair('token', LToken);
+    Result.AddPair('user', LUserObj);
+    Result.AddPair('tenant', LTenantObj);
+    Result.AddPair('database', LDbObj);
+    Result.AddPair('expiresIn', TJSONNumber.Create(86400));
+  finally
+    LQuery.Free;
+  end;
 end;
 
 function TSmAuth.ValidateToken(AToken: string): TJSONObject;
 begin
   Result := TJSONObject.Create;
-  // Simple validation - in production verify JWT signature and expiry
   if AToken <> '' then
   begin
     Result.AddPair('success', TJSONBool.Create(True));
@@ -90,7 +184,7 @@ var
 begin
   Result := TJSONObject.Create;
   LArray := TJSONArray.Create;
-  LQuery := DM.GetQuery;
+  LQuery := DMAuth.GetAuthQuery;
   try
     LQuery.SQL.Text := 'SELECT * FROM Rol WHERE Aktif = 1 ORDER BY RolAdi';
     LQuery.Open;
@@ -100,7 +194,6 @@ begin
       LObj := TJSONObject.Create;
       LObj.AddPair('rolId', TJSONNumber.Create(LQuery.FieldByName('RolID').AsInteger));
       LObj.AddPair('rolAdi', LQuery.FieldByName('RolAdi').AsString);
-      LObj.AddPair('aciklama', LQuery.FieldByName('Aciklama').AsString);
       LArray.AddElement(LObj);
       LQuery.Next;
     end;
@@ -120,7 +213,7 @@ var
 begin
   Result := TJSONObject.Create;
   LArray := TJSONArray.Create;
-  LQuery := DM.GetQuery;
+  LQuery := DMAuth.GetAuthQuery;
   try
     LQuery.SQL.Text := 'SELECT * FROM RolYetki WHERE RolID = :RolID';
     LQuery.ParamByName('RolID').AsInteger := ARolID;
@@ -168,10 +261,6 @@ begin
     LObj.AddPair('sirketId', TJSONNumber.Create(LQuery.FieldByName('SirketID').AsInteger));
     LObj.AddPair('sirketKod', LQuery.FieldByName('SirketKod').AsString);
     LObj.AddPair('sirketAdi', LQuery.FieldByName('SirketAdi').AsString);
-    LObj.AddPair('vkn', LQuery.FieldByName('VKN').AsString);
-    LObj.AddPair('vergiDairesi', LQuery.FieldByName('VergiDairesi').AsString);
-    LObj.AddPair('adres', LQuery.FieldByName('Adres').AsString);
-    LObj.AddPair('il', LQuery.FieldByName('Il').AsString);
 
     Result.AddPair('success', TJSONBool.Create(True));
     Result.AddPair('data', LObj);

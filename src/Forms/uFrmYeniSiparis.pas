@@ -4,6 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.JSON,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
   FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Memo,
   System.Generics.Collections,
@@ -84,13 +85,19 @@ type
     FCustomer: TCustomer;
     FQuantities: array[0..3] of Integer;
     FPrices: array[0..3] of Currency;
+    FAramaLogID: Integer;
+    FCariID: Integer;
     procedure UpdateTotal;
     procedure UpdateQuantityLabel(AIndex: Integer);
     procedure ChangeQuantity(AIndex, ADelta: Integer);
     function ValidateOrder: Boolean;
     function GetToplamTutar: Currency;
+    procedure LoadProductsFromServer;
+    procedure OnMusteriSelected(ACariID: Integer; const ACariAdi, ATelefon: string);
   public
     procedure SetCustomer(ACustomer: TCustomer);
+    procedure SetFromIncomingCall(AAramaLogID: Integer; const ATelefon, ACariAdi: string);
+    procedure ResetForm;
     property ToplamTutar: Currency read GetToplamTutar;
   end;
 
@@ -102,19 +109,18 @@ implementation
 {$R *.fmx}
 
 uses
-  uOrderService, uHelpers;
+  uApiService, uHelpers, uFrmMusteriSec;
 
 procedure TFrmYeniSiparis.FormCreate(Sender: TObject);
 begin
   FCustomer := nil;
+  FAramaLogID := 0;
+  FCariID := 0;
   FQuantities[0] := 0;
   FQuantities[1] := 0;
   FQuantities[2] := 0;
   FQuantities[3] := 0;
-  FPrices[0] := 60.00;   // Damacana Su
-  FPrices[1] := 150.00;  // Su Pompasi
-  FPrices[2] := 1.00;    // Bardak Su 200ml
-  FPrices[3] := 2.50;    // Soda 330ml
+  LoadProductsFromServer;
 end;
 
 procedure TFrmYeniSiparis.FormDestroy(Sender: TObject);
@@ -123,12 +129,98 @@ begin
     FCustomer.Free;
 end;
 
+procedure TFrmYeniSiparis.LoadProductsFromServer;
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+  LArray: TJSONArray;
+  LObj: TJSONObject;
+  I: Integer;
+  LLabels: array[0..3] of TLabel;
+  LPriceLabels: array[0..3] of TLabel;
+begin
+  LLabels[0] := LblProduct1Name;
+  LLabels[1] := LblProduct2Name;
+  LLabels[2] := LblProduct3Name;
+  LLabels[3] := LblProduct4Name;
+  LPriceLabels[0] := LblProduct1Price;
+  LPriceLabels[1] := LblProduct2Price;
+  LPriceLabels[2] := LblProduct3Price;
+  LPriceLabels[3] := LblProduct4Price;
+
+  LResponse := ApiService.Get('rest/TSmStok/GetHizliSiparisUrunler/');
+  try
+    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    begin
+      LData := TJSONObject(LResponse.Data);
+      if LData.TryGetValue<TJSONArray>('data', LArray) then
+      begin
+        for I := 0 to Min(LArray.Count - 1, 3) do
+        begin
+          LObj := LArray.Items[I] as TJSONObject;
+          LLabels[I].Text := LObj.GetValue<string>('stokAdi', '');
+          FPrices[I] := LObj.GetValue<Double>('satisFiyat', 0);
+          LPriceLabels[I].Text := THelpers.FormatCurrency(FPrices[I]);
+        end;
+      end;
+    end
+    else
+    begin
+      // Fallback defaults
+      FPrices[0] := 60.00;
+      FPrices[1] := 150.00;
+      FPrices[2] := 1.00;
+      FPrices[3] := 2.50;
+    end;
+  finally
+    LResponse.Free;
+  end;
+end;
+
 procedure TFrmYeniSiparis.SetCustomer(ACustomer: TCustomer);
 begin
   if Assigned(FCustomer) then
     FreeAndNil(FCustomer);
   FCustomer := ACustomer.Clone;
+  FCariID := FCustomer.Id;
   LblMusteriAdi.Text := FCustomer.AdSoyad;
+end;
+
+procedure TFrmYeniSiparis.SetFromIncomingCall(AAramaLogID: Integer;
+  const ATelefon, ACariAdi: string);
+begin
+  ResetForm;
+  FAramaLogID := AAramaLogID;
+  LblMusteriAdi.Text := ACariAdi;
+  if ACariAdi = '' then
+    LblMusteriAdi.Text := ATelefon + ' (Kayitsiz)';
+  LblHeaderTitle.Text := 'Yeni Siparis (Gelen Cagri)';
+end;
+
+procedure TFrmYeniSiparis.ResetForm;
+var
+  I: Integer;
+begin
+  FAramaLogID := 0;
+  FCariID := 0;
+  if Assigned(FCustomer) then
+    FreeAndNil(FCustomer);
+  for I := 0 to 3 do
+  begin
+    FQuantities[I] := 0;
+    UpdateQuantityLabel(I);
+  end;
+  MemoNot.Text := '';
+  LblMusteriAdi.Text := 'Musteri seciniz';
+  LblHeaderTitle.Text := 'Yeni Siparis';
+  UpdateTotal;
+end;
+
+procedure TFrmYeniSiparis.OnMusteriSelected(ACariID: Integer;
+  const ACariAdi, ATelefon: string);
+begin
+  FCariID := ACariID;
+  LblMusteriAdi.Text := ACariAdi;
 end;
 
 procedure TFrmYeniSiparis.ChangeQuantity(AIndex, ADelta: Integer);
@@ -177,7 +269,7 @@ begin
       Break;
     end;
 
-  Result := Assigned(FCustomer) and LHasItem;
+  Result := (FCariID > 0) and LHasItem;
 end;
 
 procedure TFrmYeniSiparis.BtnBackClick(Sender: TObject);
@@ -187,7 +279,8 @@ end;
 
 procedure TFrmYeniSiparis.BtnMusteriSecClick(Sender: TObject);
 begin
-  // Open customer selection dialog
+  FrmMusteriSec.OnMusteriSelected := OnMusteriSelected;
+  FrmMusteriSec.Show;
 end;
 
 procedure TFrmYeniSiparis.BtnProduct1MinusClick(Sender: TObject);
@@ -232,7 +325,12 @@ end;
 
 procedure TFrmYeniSiparis.BtnSiparisiKaydetClick(Sender: TObject);
 var
-  LOrder: TOrder;
+  LBody: TJSONObject;
+  LItems: TJSONArray;
+  LItem: TJSONObject;
+  LResponse: TApiResponse;
+  I: Integer;
+  LNames: array[0..3] of string;
 begin
   if not ValidateOrder then
   begin
@@ -240,30 +338,52 @@ begin
     Exit;
   end;
 
-  LOrder := TOrder.Create;
+  LNames[0] := LblProduct1Name.Text;
+  LNames[1] := LblProduct2Name.Text;
+  LNames[2] := LblProduct3Name.Text;
+  LNames[3] := LblProduct4Name.Text;
+
+  LBody := TJSONObject.Create;
   try
-    LOrder.CustomerId := FCustomer.Id;
-    LOrder.MusteriAdi := FCustomer.AdSoyad;
-    LOrder.MusteriTelefon := FCustomer.Telefon;
-    LOrder.MusteriAdres := FCustomer.Adres;
-    LOrder.Not_ := MemoNot.Text;
-    LOrder.Durum := osHazirlaniyor;
-    LOrder.OlusturmaTarihi := Now;
+    LBody.AddPair('cariId', TJSONNumber.Create(FCariID));
+    LBody.AddPair('aciklama', MemoNot.Text);
+    LBody.AddPair('siparisKaynak', 'Mobil');
 
-    if FQuantities[0] > 0 then
-      LOrder.AddItem(TOrderItem.Create(1, 'Damacana Su', FQuantities[0], FPrices[0]));
-    if FQuantities[1] > 0 then
-      LOrder.AddItem(TOrderItem.Create(2, 'Su Pompasi', FQuantities[1], FPrices[1]));
-    if FQuantities[2] > 0 then
-      LOrder.AddItem(TOrderItem.Create(3, 'Bardak Su 200ml', FQuantities[2], FPrices[2]));
-    if FQuantities[3] > 0 then
-      LOrder.AddItem(TOrderItem.Create(4, 'Soda 330ml', FQuantities[3], FPrices[3]));
+    if FAramaLogID > 0 then
+    begin
+      LBody.AddPair('aramaLogId', TJSONNumber.Create(FAramaLogID));
+      LBody.AddPair('siparisKaynak', 'CallerID');
+    end;
 
-    OrderService.CreateOrder(LOrder);
-    ShowMessage('Siparis basariyla kaydedildi!');
-    Close;
+    LItems := TJSONArray.Create;
+    for I := 0 to 3 do
+    begin
+      if FQuantities[I] > 0 then
+      begin
+        LItem := TJSONObject.Create;
+        LItem.AddPair('stokAdi', LNames[I]);
+        LItem.AddPair('miktar', TJSONNumber.Create(FQuantities[I]));
+        LItem.AddPair('birimFiyat', TJSONNumber.Create(Double(FPrices[I])));
+        LItems.AddElement(LItem);
+      end;
+    end;
+    LBody.AddPair('items', LItems);
+
+    LResponse := ApiService.Post('rest/TSmSiparis/CreateSiparis/', LBody);
+    try
+      if LResponse.Success then
+      begin
+        ShowMessage('Siparis basariyla kaydedildi!');
+        ResetForm;
+        Close;
+      end
+      else
+        ShowMessage('Hata: ' + LResponse.ErrorMessage);
+    finally
+      LResponse.Free;
+    end;
   finally
-    LOrder.Free;
+    LBody.Free;
   end;
 end;
 

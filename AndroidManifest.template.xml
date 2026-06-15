@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Manifest Template for TicariERP Mobil -->
+<!-- Bu dosya Delphi projesinde Deployment ayarlarinda kullanilir -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ticarierp.mobil"
+    android:versionCode="1"
+    android:versionName="1.0.0">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Phone / Call Detection -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Foreground Service (arka plan cagri algilama) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+
+    <!-- Contacts (rehbere kaydetme) -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!-- Vibrate (bildirimler icin) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Notification -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:persistent="true"
+        android:restoreAnyVersion="true"
+        android:label="TicariERP Mobil"
+        android:largeHeap="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+
+        <!-- Main Activity -->
+        <activity
+            android:name="com.embarcadero.firemonkey.FMXNativeActivity"
+            android:label="TicariERP Mobil"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Call Detection BroadcastReceiver -->
+        <receiver
+            android:name="com.ticarierp.mobil.CallReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot Receiver (arka plan servisini yeniden baslat) -->
+        <receiver
+            android:name="com.ticarierp.mobil.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Foreground Service (arka plan cagri algilama) -->
+        <service
+            android:name="com.ticarierp.mobil.CallDetectionService"
+            android:enabled="true"
+            android:foregroundServiceType="phoneCall"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

@@ -17,9 +17,11 @@ type
     FDPhysMSSQLDriverLink: TFDPhysMSSQLDriverLink;
     procedure DataModuleCreate(Sender: TObject);
   private
-    procedure ConfigureConnection;
+    FTenantConnected: Boolean;
   public
     function GetQuery: TFDQuery;
+    procedure ConnectToTenantDB(const AServer, ADatabase, AUser, APassword: string);
+    property TenantConnected: Boolean read FTenantConnected;
   end;
 
 var
@@ -33,37 +35,28 @@ implementation
 
 procedure TDM.DataModuleCreate(Sender: TObject);
 begin
-  ConfigureConnection;
-  FDConnection.Connected := True;
+  FTenantConnected := False;
 end;
 
-procedure TDM.ConfigureConnection;
-var
-  LServer, LPort, LDatabase, LUser, LPassword: string;
+procedure TDM.ConnectToTenantDB(const AServer, ADatabase, AUser, APassword: string);
 begin
-  LServer := GetEnvironmentVariable('MSSQL_SERVER_HOST');
-  LPort := GetEnvironmentVariable('MSSQL_SERVER_PORT');
-  LDatabase := GetEnvironmentVariable('MSSQL_DATABASE_NAME');
-  LUser := GetEnvironmentVariable('MSSQL_USERNAME');
-  LPassword := GetEnvironmentVariable('MSSQL_PASSWORD');
-
-  if LServer = '' then LServer := '127.0.0.1';
-  if LPort = '' then LPort := '1433';
-  if LDatabase = '' then LDatabase := 'TicariERP';
-  if LUser = '' then LUser := 'SA';
-
+  FDConnection.Connected := False;
   FDConnection.Params.Clear;
   FDConnection.Params.DriverID := 'MSSQL';
-  FDConnection.Params.Add('Server=' + LServer + ',' + LPort);
-  FDConnection.Params.Database := LDatabase;
-  FDConnection.Params.UserName := LUser;
-  FDConnection.Params.Password := LPassword;
-  FDConnection.Params.Add('ApplicationName=TicariERP_API');
+  FDConnection.Params.Add('Server=' + AServer + ',1433');
+  FDConnection.Params.Database := ADatabase;
+  FDConnection.Params.UserName := AUser;
+  FDConnection.Params.Password := APassword;
+  FDConnection.Params.Add('ApplicationName=TicariERP_API_Tenant');
   FDConnection.LoginPrompt := False;
+  FDConnection.Connected := True;
+  FTenantConnected := True;
 end;
 
 function TDM.GetQuery: TFDQuery;
 begin
+  if not FTenantConnected then
+    raise Exception.Create('Tenant veritabanina baglanilmamis. Once login yapiniz.');
   Result := TFDQuery.Create(nil);
   Result.Connection := FDConnection;
 end;
