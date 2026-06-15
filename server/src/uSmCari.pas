@@ -45,6 +45,8 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   uDM, System.DateUtils;
 

@@ -33,6 +33,8 @@ type
 
 implementation
 
+{$R *.dfm}
+
 uses
   uDM;
 
