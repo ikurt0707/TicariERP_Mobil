@@ -5,37 +5,93 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Layouts,
-  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Edit,
-  FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base, FMX.Memo,
+  FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Memo,
   System.Generics.Collections,
   uCustomer, uOrder, uProduct, uConstants;
 
 type
   TFrmYeniSiparis = class(TForm)
+    LayoutMain: TLayout;
+    LayoutHeader: TLayout;
+    RectHeader: TRectangle;
+    BtnBack: TSpeedButton;
+    LblHeaderTitle: TLabel;
+    ScrollContent: TVertScrollBox;
+    LayoutMusteriSec: TLayout;
+    RectMusteriSec: TRectangle;
+    LayoutMusteriInfo: TLayout;
+    LblMusteriLabel: TLabel;
+    LblMusteriAdi: TLabel;
+    BtnMusteriSec: TSpeedButton;
+    LayoutProducts: TLayout;
+    LblUrunlerTitle: TLabel;
+    RectProductList: TRectangle;
+    LayoutProduct1: TLayout;
+    LblProduct1Name: TLabel;
+    LblProduct1Price: TLabel;
+    LayoutProduct1Qty: TLayout;
+    BtnProduct1Minus: TCornerButton;
+    LblProduct1Qty: TLabel;
+    BtnProduct1Plus: TCornerButton;
+    Line1: TLine;
+    LayoutProduct2: TLayout;
+    LblProduct2Name: TLabel;
+    LblProduct2Price: TLabel;
+    LayoutProduct2Qty: TLayout;
+    BtnProduct2Minus: TCornerButton;
+    LblProduct2Qty: TLabel;
+    BtnProduct2Plus: TCornerButton;
+    Line2: TLine;
+    LayoutProduct3: TLayout;
+    LblProduct3Name: TLabel;
+    LblProduct3Price: TLabel;
+    LayoutProduct3Qty: TLayout;
+    BtnProduct3Minus: TCornerButton;
+    LblProduct3Qty: TLabel;
+    BtnProduct3Plus: TCornerButton;
+    Line3: TLine;
+    LayoutProduct4: TLayout;
+    LblProduct4Name: TLabel;
+    LblProduct4Price: TLabel;
+    LayoutProduct4Qty: TLayout;
+    BtnProduct4Minus: TCornerButton;
+    LblProduct4Qty: TLabel;
+    BtnProduct4Plus: TCornerButton;
+    LayoutNot: TLayout;
+    LblNotTitle: TLabel;
+    RectNot: TRectangle;
+    MemoNot: TMemo;
+    LayoutFooter: TLayout;
+    RectFooter: TRectangle;
+    LayoutTotal: TLayout;
+    LblToplamLabel: TLabel;
+    LblToplamTutar: TLabel;
+    BtnSiparisiKaydet: TCornerButton;
+    procedure BtnBackClick(Sender: TObject);
+    procedure BtnMusteriSecClick(Sender: TObject);
+    procedure BtnProduct1MinusClick(Sender: TObject);
+    procedure BtnProduct1PlusClick(Sender: TObject);
+    procedure BtnProduct2MinusClick(Sender: TObject);
+    procedure BtnProduct2PlusClick(Sender: TObject);
+    procedure BtnProduct3MinusClick(Sender: TObject);
+    procedure BtnProduct3PlusClick(Sender: TObject);
+    procedure BtnProduct4MinusClick(Sender: TObject);
+    procedure BtnProduct4PlusClick(Sender: TObject);
+    procedure BtnSiparisiKaydetClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FCustomer: TCustomer;
-    FOrder: TOrder;
-    FProducts: TObjectList<TProduct>;
-
-    procedure LoadProducts;
-    procedure SetupUI;
+    FQuantities: array[0..3] of Integer;
+    FPrices: array[0..3] of Currency;
     procedure UpdateTotal;
-    procedure ValidateOrder(out AIsValid: Boolean; out AErrorMsg: string);
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-
-    procedure SetCustomer(ACustomer: TCustomer);
-    procedure OnMiktarChange(AProductId: Integer; ANewMiktar: Integer);
-    procedure OnSiparisiKaydetClick(Sender: TObject);
-    procedure OnMusteriSecClick(Sender: TObject);
-
+    procedure UpdateQuantityLabel(AIndex: Integer);
+    procedure ChangeQuantity(AIndex, ADelta: Integer);
+    function ValidateOrder: Boolean;
     function GetToplamTutar: Currency;
-    function GetItemCount: Integer;
-
-    property Customer: TCustomer read FCustomer;
-    property Order: TOrder read FOrder;
+  public
+    procedure SetCustomer(ACustomer: TCustomer);
+    property ToplamTutar: Currency read GetToplamTutar;
   end;
 
 var
@@ -46,165 +102,169 @@ implementation
 {$R *.fmx}
 
 uses
-  uOrderService, uApiService;
+  uOrderService, uHelpers;
 
-{ TFrmYeniSiparis }
-
-constructor TFrmYeniSiparis.Create(AOwner: TComponent);
+procedure TFrmYeniSiparis.FormCreate(Sender: TObject);
 begin
-  inherited Create(AOwner);
   FCustomer := nil;
-  FOrder := TOrder.Create;
-  FProducts := TObjectList<TProduct>.Create(True);
-  SetupUI;
-  LoadProducts;
+  FQuantities[0] := 0;
+  FQuantities[1] := 0;
+  FQuantities[2] := 0;
+  FQuantities[3] := 0;
+  FPrices[0] := 60.00;   // Damacana Su
+  FPrices[1] := 150.00;  // Su Pompasi
+  FPrices[2] := 1.00;    // Bardak Su 200ml
+  FPrices[3] := 2.50;    // Soda 330ml
 end;
 
-destructor TFrmYeniSiparis.Destroy;
+procedure TFrmYeniSiparis.FormDestroy(Sender: TObject);
 begin
-  FOrder.Free;
-  FProducts.Free;
-  inherited;
-end;
-
-procedure TFrmYeniSiparis.SetupUI;
-begin
-  Caption := 'Yeni Siparis';
-end;
-
-procedure TFrmYeniSiparis.LoadProducts;
-begin
-  FProducts.Clear;
-  // Default products from mockup
-  FProducts.Add(TProduct.Create(1, 'Damacana Su', 60.00, 100, 'Adet'));
-  FProducts.Add(TProduct.Create(2, 'Su Pompasi', 150.00, 50, 'Adet'));
-  FProducts.Add(TProduct.Create(3, 'Bardak Su 200 ml', 1.00, 500, 'Adet'));
-  FProducts.Add(TProduct.Create(4, 'Soda 330 ml', 2.50, 300, 'Adet'));
+  if Assigned(FCustomer) then
+    FCustomer.Free;
 end;
 
 procedure TFrmYeniSiparis.SetCustomer(ACustomer: TCustomer);
 begin
-  FCustomer := ACustomer;
-  if Assigned(ACustomer) then
-  begin
-    FOrder.CustomerId := ACustomer.Id;
-    FOrder.MusteriAdi := ACustomer.AdSoyad;
-    FOrder.MusteriTelefon := ACustomer.Telefon;
-    FOrder.MusteriAdres := ACustomer.Adres;
-  end;
+  if Assigned(FCustomer) then
+    FreeAndNil(FCustomer);
+  FCustomer := ACustomer.Clone;
+  LblMusteriAdi.Text := FCustomer.AdSoyad;
 end;
 
-procedure TFrmYeniSiparis.OnMiktarChange(AProductId: Integer; ANewMiktar: Integer);
-var
-  I: Integer;
-  LProduct: TProduct;
-  LItem: TOrderItem;
-  LFound: Boolean;
+procedure TFrmYeniSiparis.ChangeQuantity(AIndex, ADelta: Integer);
 begin
-  LFound := False;
-  LProduct := nil;
-
-  // Find the product
-  for I := 0 to FProducts.Count - 1 do
-    if FProducts[I].Id = AProductId then
-    begin
-      LProduct := FProducts[I];
-      Break;
-    end;
-
-  if not Assigned(LProduct) then
-    Exit;
-
-  // Update or add item in order
-  for I := 0 to FOrder.Items.Count - 1 do
-    if FOrder.Items[I].ProductId = AProductId then
-    begin
-      if ANewMiktar > 0 then
-        FOrder.Items[I].Miktar := ANewMiktar
-      else
-        FOrder.RemoveItem(I);
-      LFound := True;
-      Break;
-    end;
-
-  if (not LFound) and (ANewMiktar > 0) then
-  begin
-    LItem := TOrderItem.Create(AProductId, LProduct.UrunAdi, ANewMiktar, LProduct.BirimFiyat);
-    FOrder.AddItem(LItem);
-  end;
-
+  FQuantities[AIndex] := FQuantities[AIndex] + ADelta;
+  if FQuantities[AIndex] < 0 then
+    FQuantities[AIndex] := 0;
+  UpdateQuantityLabel(AIndex);
   UpdateTotal;
+end;
+
+procedure TFrmYeniSiparis.UpdateQuantityLabel(AIndex: Integer);
+begin
+  case AIndex of
+    0: LblProduct1Qty.Text := IntToStr(FQuantities[0]);
+    1: LblProduct2Qty.Text := IntToStr(FQuantities[1]);
+    2: LblProduct3Qty.Text := IntToStr(FQuantities[2]);
+    3: LblProduct4Qty.Text := IntToStr(FQuantities[3]);
+  end;
 end;
 
 procedure TFrmYeniSiparis.UpdateTotal;
 begin
-  // Update UI with new total
-end;
-
-procedure TFrmYeniSiparis.ValidateOrder(out AIsValid: Boolean; out AErrorMsg: string);
-begin
-  AIsValid := True;
-  AErrorMsg := '';
-
-  if not Assigned(FCustomer) then
-  begin
-    AIsValid := False;
-    AErrorMsg := 'Musteri secilmedi';
-    Exit;
-  end;
-
-  if FOrder.Items.Count = 0 then
-  begin
-    AIsValid := False;
-    AErrorMsg := 'En az bir urun ekleyin';
-    Exit;
-  end;
-
-  if GetToplamTutar <= 0 then
-  begin
-    AIsValid := False;
-    AErrorMsg := 'Siparis tutari 0 olamaz';
-    Exit;
-  end;
-end;
-
-procedure TFrmYeniSiparis.OnSiparisiKaydetClick(Sender: TObject);
-var
-  LIsValid: Boolean;
-  LErrorMsg: string;
-  LResponse: TApiResponse;
-begin
-  ValidateOrder(LIsValid, LErrorMsg);
-  if not LIsValid then
-  begin
-    ShowMessage(LErrorMsg);
-    Exit;
-  end;
-
-  LResponse := OrderService.CreateOrder(FOrder);
-  try
-    if LResponse.Success then
-      ShowMessage('Siparis basariyla kaydedildi')
-    else
-      ShowMessage('Hata: ' + LResponse.ErrorMessage);
-  finally
-    LResponse.Free;
-  end;
-end;
-
-procedure TFrmYeniSiparis.OnMusteriSecClick(Sender: TObject);
-begin
-  // Open customer selection
+  LblToplamTutar.Text := THelpers.FormatCurrency(GetToplamTutar);
 end;
 
 function TFrmYeniSiparis.GetToplamTutar: Currency;
+var
+  I: Integer;
 begin
-  Result := FOrder.GetToplamTutar;
+  Result := 0;
+  for I := 0 to 3 do
+    Result := Result + (FQuantities[I] * FPrices[I]);
 end;
 
-function TFrmYeniSiparis.GetItemCount: Integer;
+function TFrmYeniSiparis.ValidateOrder: Boolean;
+var
+  I: Integer;
+  LHasItem: Boolean;
 begin
-  Result := FOrder.Items.Count;
+  LHasItem := False;
+  for I := 0 to 3 do
+    if FQuantities[I] > 0 then
+    begin
+      LHasItem := True;
+      Break;
+    end;
+
+  Result := Assigned(FCustomer) and LHasItem;
+end;
+
+procedure TFrmYeniSiparis.BtnBackClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFrmYeniSiparis.BtnMusteriSecClick(Sender: TObject);
+begin
+  // Open customer selection dialog
+end;
+
+procedure TFrmYeniSiparis.BtnProduct1MinusClick(Sender: TObject);
+begin
+  ChangeQuantity(0, -1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct1PlusClick(Sender: TObject);
+begin
+  ChangeQuantity(0, 1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct2MinusClick(Sender: TObject);
+begin
+  ChangeQuantity(1, -1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct2PlusClick(Sender: TObject);
+begin
+  ChangeQuantity(1, 1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct3MinusClick(Sender: TObject);
+begin
+  ChangeQuantity(2, -1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct3PlusClick(Sender: TObject);
+begin
+  ChangeQuantity(2, 1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct4MinusClick(Sender: TObject);
+begin
+  ChangeQuantity(3, -1);
+end;
+
+procedure TFrmYeniSiparis.BtnProduct4PlusClick(Sender: TObject);
+begin
+  ChangeQuantity(3, 1);
+end;
+
+procedure TFrmYeniSiparis.BtnSiparisiKaydetClick(Sender: TObject);
+var
+  LOrder: TOrder;
+begin
+  if not ValidateOrder then
+  begin
+    ShowMessage('Lutfen musteri secin ve en az bir urun ekleyin.');
+    Exit;
+  end;
+
+  LOrder := TOrder.Create;
+  try
+    LOrder.CustomerId := FCustomer.Id;
+    LOrder.MusteriAdi := FCustomer.AdSoyad;
+    LOrder.MusteriTelefon := FCustomer.Telefon;
+    LOrder.MusteriAdres := FCustomer.Adres;
+    LOrder.Not_ := MemoNot.Text;
+    LOrder.Durum := osHazirlaniyor;
+    LOrder.OlusturmaTarihi := Now;
+
+    if FQuantities[0] > 0 then
+      LOrder.AddItem(TOrderItem.Create(1, 'Damacana Su', FQuantities[0], FPrices[0]));
+    if FQuantities[1] > 0 then
+      LOrder.AddItem(TOrderItem.Create(2, 'Su Pompasi', FQuantities[1], FPrices[1]));
+    if FQuantities[2] > 0 then
+      LOrder.AddItem(TOrderItem.Create(3, 'Bardak Su 200ml', FQuantities[2], FPrices[2]));
+    if FQuantities[3] > 0 then
+      LOrder.AddItem(TOrderItem.Create(4, 'Soda 330ml', FQuantities[3], FPrices[3]));
+
+    OrderService.CreateOrder(LOrder);
+    ShowMessage('Siparis basariyla kaydedildi!');
+    Close;
+  finally
+    LOrder.Free;
+  end;
 end;
 
 end.

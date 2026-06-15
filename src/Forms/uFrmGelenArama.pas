@@ -12,25 +12,64 @@ uses
 
 type
   TFrmGelenArama = class(TForm)
+    LayoutMain: TLayout;
+    LayoutHeader: TLayout;
+    RectHeader: TRectangle;
+    BtnBack: TSpeedButton;
+    LblHeaderTitle: TLabel;
+    ScrollContent: TVertScrollBox;
+    LayoutCustomerCard: TLayout;
+    RectCustomerCard: TRectangle;
+    LayoutCustomerTop: TLayout;
+    CircleAvatar: TCircle;
+    LblAvatar: TLabel;
+    LayoutCustomerInfo: TLayout;
+    LblCustomerName: TLabel;
+    LblCustomerPhone: TLabel;
+    RectKayitliTag: TRectangle;
+    LblKayitliTag: TLabel;
+    LayoutCustomerDetails: TGridPanelLayout;
+    LayoutBakiye: TLayout;
+    LblBakiyeTitle: TLabel;
+    LblBakiyeValue: TLabel;
+    LayoutSonSiparis: TLayout;
+    LblSonSiparisTitle: TLabel;
+    LblSonSiparisValue: TLabel;
+    LayoutToplamHarcama: TLayout;
+    LblToplamHarcamaTitle: TLabel;
+    LblToplamHarcamaValue: TLabel;
+    LayoutToplamSiparis: TLayout;
+    LblToplamSiparisTitle: TLabel;
+    LblToplamSiparisValue: TLabel;
+    LayoutActionButtons: TLayout;
+    BtnSiparisAc: TCornerButton;
+    BtnWhatsApp: TCornerButton;
+    BtnAra: TCornerButton;
+    BtnHaritadaGoster: TCornerButton;
+    LayoutSonSiparisler: TLayout;
+    LayoutSonSipHeader: TLayout;
+    LblSonSiparislerTitle: TLabel;
+    BtnTumu: TSpeedButton;
+    ListViewSonSiparisler: TListView;
+    BtnAramayiKaydet: TCornerButton;
+    procedure BtnBackClick(Sender: TObject);
+    procedure BtnSiparisAcClick(Sender: TObject);
+    procedure BtnWhatsAppClick(Sender: TObject);
+    procedure BtnAraClick(Sender: TObject);
+    procedure BtnHaritadaGosterClick(Sender: TObject);
+    procedure BtnAramayiKaydetClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FCustomer: TCustomer;
     FRecentOrders: TOrderList;
     FPhoneNumber: string;
-
     procedure LoadCustomerByPhone(const APhone: string);
     procedure LoadRecentOrders;
-    procedure SetupUI;
+    procedure UpdateCustomerUI;
+    procedure UpdateOrdersUI;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-
     procedure ShowForPhone(const APhone: string);
-    procedure OnSiparisAcClick(Sender: TObject);
-    procedure OnWhatsAppClick(Sender: TObject);
-    procedure OnAraClick(Sender: TObject);
-    procedure OnHaritadaGosterClick(Sender: TObject);
-    procedure OnAramayiKaydetClick(Sender: TObject);
-
     property Customer: TCustomer read FCustomer;
     property PhoneNumber: string read FPhoneNumber;
   end;
@@ -43,30 +82,20 @@ implementation
 {$R *.fmx}
 
 uses
-  uCustomerService, uOrderService;
+  uCustomerService, uOrderService, uHelpers;
 
-{ TFrmGelenArama }
-
-constructor TFrmGelenArama.Create(AOwner: TComponent);
+procedure TFrmGelenArama.FormCreate(Sender: TObject);
 begin
-  inherited Create(AOwner);
   FCustomer := nil;
   FRecentOrders := TOrderList.Create(True);
   FPhoneNumber := '';
-  SetupUI;
 end;
 
-destructor TFrmGelenArama.Destroy;
+procedure TFrmGelenArama.FormDestroy(Sender: TObject);
 begin
   if Assigned(FCustomer) then
     FCustomer.Free;
   FRecentOrders.Free;
-  inherited;
-end;
-
-procedure TFrmGelenArama.SetupUI;
-begin
-  Caption := 'Gelen Arama';
 end;
 
 procedure TFrmGelenArama.ShowForPhone(const APhone: string);
@@ -74,6 +103,8 @@ begin
   FPhoneNumber := APhone;
   LoadCustomerByPhone(APhone);
   LoadRecentOrders;
+  UpdateCustomerUI;
+  UpdateOrdersUI;
 end;
 
 procedure TFrmGelenArama.LoadCustomerByPhone(const APhone: string);
@@ -93,29 +124,77 @@ begin
   end;
 end;
 
-procedure TFrmGelenArama.OnSiparisAcClick(Sender: TObject);
+procedure TFrmGelenArama.UpdateCustomerUI;
+begin
+  if Assigned(FCustomer) then
+  begin
+    LblCustomerName.Text := FCustomer.AdSoyad;
+    LblCustomerPhone.Text := THelpers.FormatPhone(FCustomer.Telefon);
+    LblAvatar.Text := FCustomer.GetInitials;
+    LblBakiyeValue.Text := FCustomer.GetFormattedBakiye;
+    LblSonSiparisValue.Text := THelpers.DateToDisplayStr(FCustomer.SonSiparisTarihi);
+    LblToplamHarcamaValue.Text := FCustomer.GetFormattedToplamHarcama;
+    LblToplamSiparisValue.Text := IntToStr(FCustomer.ToplamSiparis);
+
+    if FCustomer.IsKayitli then
+    begin
+      LblKayitliTag.Text := 'Kayitli Musteri';
+      RectKayitliTag.Fill.Color := TAlphaColorRec.Create($FFE8F5E9);
+      LblKayitliTag.TextSettings.FontColor := TAlphaColorRec.Create($FF4CAF50);
+    end
+    else
+    begin
+      LblKayitliTag.Text := 'Kayitsiz';
+      RectKayitliTag.Fill.Color := TAlphaColorRec.Create($FFFBE9E7);
+      LblKayitliTag.TextSettings.FontColor := TAlphaColorRec.Create($FFF44336);
+    end;
+  end;
+end;
+
+procedure TFrmGelenArama.UpdateOrdersUI;
+var
+  I: Integer;
+  LItem: TListViewItem;
+begin
+  ListViewSonSiparisler.Items.Clear;
+  for I := 0 to FRecentOrders.Count - 1 do
+  begin
+    LItem := ListViewSonSiparisler.Items.Add;
+    LItem.Text := FRecentOrders[I].GetFormattedTarih + '    ' +
+                  FRecentOrders[I].GetItemsSummary;
+    LItem.Detail := FRecentOrders[I].GetFormattedToplam;
+    LItem.Tag := FRecentOrders[I].Id;
+  end;
+end;
+
+procedure TFrmGelenArama.BtnBackClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TFrmGelenArama.BtnSiparisAcClick(Sender: TObject);
 begin
   // Open new order form with customer pre-filled
 end;
 
-procedure TFrmGelenArama.OnWhatsAppClick(Sender: TObject);
+procedure TFrmGelenArama.BtnWhatsAppClick(Sender: TObject);
 begin
   // Open WhatsApp with customer number
 end;
 
-procedure TFrmGelenArama.OnAraClick(Sender: TObject);
+procedure TFrmGelenArama.BtnAraClick(Sender: TObject);
 begin
   // Make phone call
 end;
 
-procedure TFrmGelenArama.OnHaritadaGosterClick(Sender: TObject);
+procedure TFrmGelenArama.BtnHaritadaGosterClick(Sender: TObject);
 begin
-  // Show customer on map
+  // Show customer location on map
 end;
 
-procedure TFrmGelenArama.OnAramayiKaydetClick(Sender: TObject);
+procedure TFrmGelenArama.BtnAramayiKaydetClick(Sender: TObject);
 begin
-  // Log the call
+  // Log the call record
 end;
 
 end.
