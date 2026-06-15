@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <MainSource>TicariERP_API.dpr</MainSource>
+    <ProjectVersion>20.2</ProjectVersion>
+    <FrameworkType>None</FrameworkType>
+    <Base>True</Base>
+    <Config Condition="'$(Config)'==''">Debug</Config>
+    <Platform Condition="'$(Platform)'==''">Win64</Platform>
+    <TargetedPlatforms>1</TargetedPlatforms>
+    <AppType>Console</AppType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Debug'">
+    <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    <DCC_Optimize>false</DCC_Optimize>
+    <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Release'">
+    <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+    <DCC_DebugInformation>0</DCC_DebugInformation>
+    <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='Win64'">
+    <DCC_Namespace>System;Xml;Data;Datasnap;Web;$(DCC_Namespace)</DCC_Namespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <DelphiCompile Include="TicariERP_API.dpr">
+      <MainSource>MainSource</MainSource>
+    </DelphiCompile>
+    <DCCReference Include="src\uWebModule.pas">
+      <Form>WebModule1</Form>
+      <FormType>dfm</FormType>
+      <DesignClass>TWebModule</DesignClass>
+    </DCCReference>
+    <DCCReference Include="src\uServerContainer.pas">
+      <Form>ServerContainer1</Form>
+      <FormType>dfm</FormType>
+      <DesignClass>TDataModule</DesignClass>
+    </DCCReference>
+    <DCCReference Include="src\uDM.pas">
+      <Form>DM</Form>
+      <FormType>dfm</FormType>
+      <DesignClass>TDataModule</DesignClass>
+    </DCCReference>
+    <DCCReference Include="src\uSmCari.pas"/>
+    <DCCReference Include="src\uSmSiparis.pas"/>
+    <DCCReference Include="src\uSmStok.pas"/>
+    <DCCReference Include="src\uSmCallerID.pas"/>
+    <DCCReference Include="src\uSmKurye.pas"/>
+    <DCCReference Include="src\uSmAuth.pas"/>
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+    <Borland.ProjectType/>
+  </ProjectExtensions>
+</Project>
