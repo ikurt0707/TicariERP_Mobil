@@ -11,7 +11,12 @@ type
     Token: string;
     UserId: Integer;
     UserName: string;
+    AdSoyad: string;
     BayiName: string;
+    RolID: Integer;
+    IsKurye: Boolean;
+    TenantID: Integer;
+    TenantAdi: string;
     ErrorMessage: string;
   end;
 
@@ -21,19 +26,32 @@ type
     FIsLoggedIn: Boolean;
     FUserId: Integer;
     FUserName: string;
+    FAdSoyad: string;
     FBayiName: string;
+    FRolID: Integer;
+    FIsKurye: Boolean;
+    FTenantID: Integer;
+    FTenantAdi: string;
   public
     constructor Create(AApiService: TApiService);
 
     function Login(const AUsername, APassword: string): TLoginResult;
     procedure Logout;
-    function RefreshToken: Boolean;
     function IsAuthenticated: Boolean;
+
+    procedure SetUserInfo(AUserID: Integer; const AKullaniciAdi, AAdSoyad: string;
+      ARolID: Integer; AKurye: Boolean);
+    procedure SetTenantInfo(ATenantID: Integer; const ATenantAdi: string);
 
     property IsLoggedIn: Boolean read FIsLoggedIn;
     property UserId: Integer read FUserId;
     property UserName: string read FUserName;
+    property AdSoyad: string read FAdSoyad;
     property BayiName: string read FBayiName;
+    property RolID: Integer read FRolID;
+    property IsKurye: Boolean read FIsKurye;
+    property TenantID: Integer read FTenantID;
+    property TenantAdi: string read FTenantAdi;
   end;
 
 var
@@ -44,8 +62,6 @@ implementation
 uses
   uConstants;
 
-{ TAuthService }
-
 constructor TAuthService.Create(AApiService: TApiService);
 begin
   inherited Create;
@@ -53,51 +69,86 @@ begin
   FIsLoggedIn := False;
   FUserId := 0;
   FUserName := '';
+  FAdSoyad := '';
   FBayiName := '';
+  FRolID := 0;
+  FIsKurye := False;
+  FTenantID := 0;
+  FTenantAdi := '';
 end;
 
 function TAuthService.Login(const AUsername, APassword: string): TLoginResult;
 var
-  LBody: TJSONObject;
   LResponse: TApiResponse;
-  LData: TJSONObject;
+  LData, LUser, LTenant: TJSONObject;
 begin
   Result.Success := False;
   Result.Token := '';
   Result.UserId := 0;
   Result.UserName := '';
+  Result.AdSoyad := '';
   Result.BayiName := '';
+  Result.RolID := 0;
+  Result.IsKurye := False;
+  Result.TenantID := 0;
+  Result.TenantAdi := '';
   Result.ErrorMessage := '';
 
-  LBody := TJSONObject.Create;
+  LResponse := FApiService.Get('rest/TSmAuth/Login/' + AUsername + '/' + APassword);
   try
-    LBody.AddPair('username', AUsername);
-    LBody.AddPair('password', APassword);
-
-    LResponse := FApiService.Post('auth/login', LBody);
-    try
-      if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
-      begin
-        LData := TJSONObject(LResponse.Data);
-        Result.Success := True;
-        LData.TryGetValue<string>('token', Result.Token);
-        LData.TryGetValue<Integer>('userId', Result.UserId);
-        LData.TryGetValue<string>('userName', Result.UserName);
-        LData.TryGetValue<string>('bayiName', Result.BayiName);
-
-        FApiService.SetToken(Result.Token);
-        FIsLoggedIn := True;
-        FUserId := Result.UserId;
-        FUserName := Result.UserName;
-        FBayiName := Result.BayiName;
-      end
-      else
-        Result.ErrorMessage := LResponse.ErrorMessage;
-    finally
-      LResponse.Free;
+    if not LResponse.Success then
+    begin
+      Result.ErrorMessage := LResponse.ErrorMessage;
+      Exit;
     end;
+
+    if not (LResponse.Data is TJSONObject) then
+    begin
+      Result.ErrorMessage := 'Gecersiz sunucu yaniti';
+      Exit;
+    end;
+
+    LData := TJSONObject(LResponse.Data);
+    if not LData.GetValue<Boolean>('success', False) then
+    begin
+      Result.ErrorMessage := LData.GetValue<string>('message', 'Giris basarisiz');
+      Exit;
+    end;
+
+    Result.Success := True;
+    Result.Token := LData.GetValue<string>('token', '');
+
+    LUser := LData.GetValue<TJSONObject>('user');
+    if Assigned(LUser) then
+    begin
+      Result.UserId := LUser.GetValue<Integer>('userId', 0);
+      Result.UserName := LUser.GetValue<string>('kullaniciAdi', '');
+      Result.AdSoyad := LUser.GetValue<string>('adSoyad', '');
+      Result.RolID := LUser.GetValue<Integer>('rolId', 0);
+      Result.IsKurye := LUser.GetValue<Boolean>('kurye', False);
+    end;
+
+    LTenant := LData.GetValue<TJSONObject>('tenant');
+    if Assigned(LTenant) then
+    begin
+      Result.TenantID := LTenant.GetValue<Integer>('tenantId', 0);
+      Result.TenantAdi := LTenant.GetValue<string>('tenantAdi', '');
+      Result.BayiName := LTenant.GetValue<string>('tenantAdi', '');
+    end;
+
+    // Apply auth
+    FApiService.SetToken(Result.Token);
+    FIsLoggedIn := True;
+    FUserId := Result.UserId;
+    FUserName := Result.UserName;
+    FAdSoyad := Result.AdSoyad;
+    FBayiName := Result.BayiName;
+    FRolID := Result.RolID;
+    FIsKurye := Result.IsKurye;
+    FTenantID := Result.TenantID;
+    FTenantAdi := Result.TenantAdi;
   finally
-    LBody.Free;
+    LResponse.Free;
   end;
 end;
 
@@ -107,33 +158,35 @@ begin
   FIsLoggedIn := False;
   FUserId := 0;
   FUserName := '';
+  FAdSoyad := '';
   FBayiName := '';
-end;
-
-function TAuthService.RefreshToken: Boolean;
-var
-  LResponse: TApiResponse;
-  LNewToken: string;
-begin
-  Result := False;
-  LResponse := FApiService.Post('auth/refresh', TJSONObject.Create);
-  try
-    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
-    begin
-      if TJSONObject(LResponse.Data).TryGetValue<string>('token', LNewToken) then
-      begin
-        FApiService.SetToken(LNewToken);
-        Result := True;
-      end;
-    end;
-  finally
-    LResponse.Free;
-  end;
+  FRolID := 0;
+  FIsKurye := False;
+  FTenantID := 0;
+  FTenantAdi := '';
 end;
 
 function TAuthService.IsAuthenticated: Boolean;
 begin
   Result := FIsLoggedIn and FApiService.HasToken;
+end;
+
+procedure TAuthService.SetUserInfo(AUserID: Integer; const AKullaniciAdi, AAdSoyad: string;
+  ARolID: Integer; AKurye: Boolean);
+begin
+  FIsLoggedIn := True;
+  FUserId := AUserID;
+  FUserName := AKullaniciAdi;
+  FAdSoyad := AAdSoyad;
+  FRolID := ARolID;
+  FIsKurye := AKurye;
+end;
+
+procedure TAuthService.SetTenantInfo(ATenantID: Integer; const ATenantAdi: string);
+begin
+  FTenantID := ATenantID;
+  FTenantAdi := ATenantAdi;
+  FBayiName := ATenantAdi;
 end;
 
 initialization

@@ -82,7 +82,8 @@ implementation
 {$R *.fmx}
 
 uses
-  uCustomerService, uOrderService, uHelpers;
+  uApiService, uCustomerService, uOrderService, uHelpers,
+  uFrmYeniSiparis, uContactService;
 
 procedure TFrmGelenArama.FormCreate(Sender: TObject);
 begin
@@ -139,14 +140,14 @@ begin
     if FCustomer.IsKayitli then
     begin
       LblKayitliTag.Text := 'Kayitli Musteri';
-      RectKayitliTag.Fill.Color := TAlphaColorRec.Create($FFE8F5E9);
-      LblKayitliTag.TextSettings.FontColor := TAlphaColorRec.Create($FF4CAF50);
+      RectKayitliTag.Fill.Color := TAlphaColor($FFE8F5E9);
+      LblKayitliTag.TextSettings.FontColor := TAlphaColor($FF4CAF50);
     end
     else
     begin
       LblKayitliTag.Text := 'Kayitsiz';
-      RectKayitliTag.Fill.Color := TAlphaColorRec.Create($FFFBE9E7);
-      LblKayitliTag.TextSettings.FontColor := TAlphaColorRec.Create($FFF44336);
+      RectKayitliTag.Fill.Color := TAlphaColor($FFFBE9E7);
+      LblKayitliTag.TextSettings.FontColor := TAlphaColor($FFF44336);
     end;
   end;
 end;
@@ -174,7 +175,9 @@ end;
 
 procedure TFrmGelenArama.BtnSiparisAcClick(Sender: TObject);
 begin
-  // Open new order form with customer pre-filled
+  if Assigned(FCustomer) then
+    FrmYeniSiparis.SetCustomer(FCustomer);
+  FrmYeniSiparis.Show;
 end;
 
 procedure TFrmGelenArama.BtnWhatsAppClick(Sender: TObject);
@@ -193,8 +196,22 @@ begin
 end;
 
 procedure TFrmGelenArama.BtnAramayiKaydetClick(Sender: TObject);
+var
+  LResponse: TApiResponse;
 begin
-  // Log the call record
+  LResponse := ApiService.Get('rest/TSmCallerID/LogCallerIdEvent/' + FPhoneNumber);
+  try
+    if LResponse.Success then
+    begin
+      // Also save to contacts if customer exists
+      if Assigned(FCustomer) then
+        ContactService.SaveCustomerAsContact(
+          FCustomer.Id, FCustomer.AdSoyad, FCustomer.Telefon,
+          FCustomer.Adres, '');
+    end;
+  finally
+    LResponse.Free;
+  end;
 end;
 
 end.

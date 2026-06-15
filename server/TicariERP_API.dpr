@@ -17,7 +17,8 @@ uses
   uSmCallerID in 'src\uSmCallerID.pas' {SmCallerID: TDSServerModule},
   uSmKurye in 'src\uSmKurye.pas' {SmKurye: TDSServerModule},
   uSmAuth in 'src\uSmAuth.pas' {SmAuth: TDSServerModule},
-  uDM in 'src\uDM.pas' {DM: TDataModule};
+  uDM in 'src\uDM.pas' {DM: TDataModule},
+  uDMAuth in 'src\uDMAuth.pas' {DMAuth: TDataModule};
 
 {$R *.res}
 

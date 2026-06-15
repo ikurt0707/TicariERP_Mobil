@@ -46,8 +46,9 @@ Linux64/
 *.dproj.local
 
 # Test output
-*.xml
 DUnitX-Results.xml
+*.xml
+!AndroidManifest.template.xml
 
 # User specific
 *.todo

@@ -1,0 +1,169 @@
+object FrmLogin: TFrmLogin
+  Left = 0
+  Top = 0
+  Caption = 'Giris'
+  ClientHeight = 640
+  ClientWidth = 360
+  Fill.Color = xFFF5F5F5
+  FormFactor.Width = 360
+  FormFactor.Height = 640
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  DesignerMasterStyle = 0
+  object LayoutMain: TLayout
+    Align = Client
+    Size.Width = 360.000000000000000000
+    Size.Height = 640.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object LayoutLogo: TLayout
+      Align = Top
+      Size.Width = 360.000000000000000000
+      Size.Height = 200.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object ImgLogo: TImage
+        Align = Center
+        Size.Width = 120.000000000000000000
+        Size.Height = 120.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object LblAppName: TLabel
+        Align = Bottom
+        StyledSettings = [Family, Style]
+        Size.Width = 360.000000000000000000
+        Size.Height = 40.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 22.000000000000000000
+        TextSettings.HorzAlign = Center
+        Text = 'TicariERP Mobil'
+        TabOrder = 1
+      end
+    end
+    object LayoutForm: TLayout
+      Align = Top
+      Position.Y = 200.000000000000000000
+      Size.Width = 360.000000000000000000
+      Size.Height = 280.000000000000000000
+      Size.PlatformDefault = False
+      Margins.Left = 24.000000000000000000
+      Margins.Right = 24.000000000000000000
+      TabOrder = 1
+      object RectFormBg: TRectangle
+        Align = Client
+        Fill.Color = xFFFFFFFF
+        Stroke.Kind = None
+        XRadius = 12.000000000000000000
+        YRadius = 12.000000000000000000
+        Size.Width = 312.000000000000000000
+        Size.Height = 280.000000000000000000
+        Size.PlatformDefault = False
+        object LayoutFormContent: TLayout
+          Align = Client
+          Margins.Left = 20.000000000000000000
+          Margins.Top = 20.000000000000000000
+          Margins.Right = 20.000000000000000000
+          Margins.Bottom = 20.000000000000000000
+          Size.Width = 272.000000000000000000
+          Size.Height = 240.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object LblKullaniciAdi: TLabel
+            Align = Top
+            Size.Width = 272.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Kullanici Adi'
+            TabOrder = 0
+          end
+          object EdtKullaniciAdi: TEdit
+            Align = Top
+            Position.Y = 20.000000000000000000
+            Size.Width = 272.000000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            TextPrompt = 'Kullanici adinizi girin'
+          end
+          object LblSifre: TLabel
+            Align = Top
+            Position.Y = 70.000000000000000000
+            Size.Width = 272.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+            Margins.Top = 10.000000000000000000
+            Text = 'Sifre'
+            TabOrder = 2
+          end
+          object EdtSifre: TEdit
+            Align = Top
+            Position.Y = 90.000000000000000000
+            Size.Width = 272.000000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            Password = True
+            TabOrder = 3
+            TextPrompt = 'Sifrenizi girin'
+          end
+          object ChkBeniHatirla: TCheckBox
+            Align = Top
+            Position.Y = 140.000000000000000000
+            Size.Width = 272.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Margins.Top = 10.000000000000000000
+            Text = 'Beni Hatirla'
+            TabOrder = 4
+          end
+          object BtnGiris: TCornerButton
+            Align = Top
+            Position.Y = 180.000000000000000000
+            Size.Width = 272.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            Margins.Top = 10.000000000000000000
+            Text = 'Giris Yap'
+            XRadius = 8.000000000000000000
+            YRadius = 8.000000000000000000
+            TabOrder = 5
+            OnClick = BtnGirisClick
+          end
+        end
+      end
+    end
+    object LayoutError: TLayout
+      Align = Top
+      Position.Y = 480.000000000000000000
+      Size.Width = 360.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      Margins.Left = 24.000000000000000000
+      Margins.Right = 24.000000000000000000
+      Margins.Top = 10.000000000000000000
+      TabOrder = 2
+      object LblError: TLabel
+        Align = Client
+        StyledSettings = [Family, Size]
+        TextSettings.FontColor = xFFF44336
+        TextSettings.HorzAlign = Center
+        Text = ''
+        TabOrder = 0
+      end
+    end
+    object LayoutVersion: TLayout
+      Align = Bottom
+      Size.Width = 360.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object LblVersion: TLabel
+        Align = Client
+        StyledSettings = [Family]
+        TextSettings.Font.Size = 11.000000000000000000
+        TextSettings.FontColor = xFF757575
+        TextSettings.HorzAlign = Center
+        Text = 'v1.0.0'
+        TabOrder = 0
+      end
+    end
+  end
+end

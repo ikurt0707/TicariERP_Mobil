@@ -8,7 +8,7 @@ uses
   FMX.Objects, FMX.Controls.Presentation, FMX.StdCtrls, FMX.TabControl,
   FMX.ListView, FMX.ListView.Types, FMX.ListView.Appearances,
   FMX.ListView.Adapters.Base, FMX.ListBox, FMX.Effects,
-  System.Generics.Collections,
+  System.Generics.Collections, System.JSON,
   uCustomer, uOrder, uDailySummary, uConstants;
 
 type
@@ -82,6 +82,7 @@ type
     procedure BtnTabYeniSiparisClick(Sender: TObject);
     procedure BtnTabBildirimlerClick(Sender: TObject);
     procedure BtnTabAyarlarClick(Sender: TObject);
+    procedure BtnTumuSiparislerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -94,6 +95,7 @@ type
     procedure UpdateRecentOrdersUI;
     procedure SetActiveTab(AIndex: Integer);
   public
+    procedure RefreshData;
   end;
 
 var
@@ -104,7 +106,8 @@ implementation
 {$R *.fmx}
 
 uses
-  uOrderService, uApiService, uAuthService, uHelpers;
+  uApiService, uAuthService, uHelpers,
+  uFrmYeniSiparis, uFrmSiparisler, uFrmKuryeTakip, uFrmMusteriSec;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
@@ -118,8 +121,7 @@ begin
     LblBayiName.Text := AuthService.BayiName;
   end;
 
-  LoadDailySummary;
-  LoadRecentOrders;
+  RefreshData;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
@@ -128,16 +130,63 @@ begin
   FRecentOrders.Free;
 end;
 
-procedure TFrmMain.LoadDailySummary;
+procedure TFrmMain.RefreshData;
 begin
-  // Load from API and update UI
+  LoadDailySummary;
+  LoadRecentOrders;
+end;
+
+procedure TFrmMain.LoadDailySummary;
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+begin
+  LResponse := ApiService.Get('rest/TSmSiparis/GetGunlukOzet/');
+  try
+    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    begin
+      LData := TJSONObject(LResponse.Data);
+      FDailySummary.SiparisAdedi := LData.GetValue<Integer>('toplamSiparis', 0);
+      FDailySummary.Ciro := LData.GetValue<Double>('toplamTutar', 0);
+      FDailySummary.Tahsilat := LData.GetValue<Double>('toplamTutar', 0);
+      FDailySummary.Borc := 0;
+    end;
+  finally
+    LResponse.Free;
+  end;
   UpdateSummaryUI;
 end;
 
 procedure TFrmMain.LoadRecentOrders;
+var
+  LResponse: TApiResponse;
+  LData: TJSONObject;
+  LArray: TJSONArray;
+  LOrder: TOrder;
+  I: Integer;
 begin
-  FRecentOrders.Free;
-  FRecentOrders := OrderService.GetRecentOrders(5);
+  FRecentOrders.Clear;
+  LResponse := ApiService.Get('rest/TSmSiparis/GetSonSiparisler/5');
+  try
+    if LResponse.Success and Assigned(LResponse.Data) and (LResponse.Data is TJSONObject) then
+    begin
+      LData := TJSONObject(LResponse.Data);
+      if LData.TryGetValue<TJSONArray>('data', LArray) then
+      begin
+        for I := 0 to LArray.Count - 1 do
+        begin
+          LOrder := TOrder.Create;
+          LOrder.Id := (LArray.Items[I] as TJSONObject).GetValue<Integer>('siparisId', 0);
+          LOrder.MusteriAdi := (LArray.Items[I] as TJSONObject).GetValue<string>('cariAdi', '');
+          LOrder.MusteriTelefon := (LArray.Items[I] as TJSONObject).GetValue<string>('telefon', '');
+          LOrder.Toplam := (LArray.Items[I] as TJSONObject).GetValue<Double>('genelToplam', 0);
+          FRecentOrders.Add(LOrder);
+        end;
+      end;
+    end;
+  finally
+    LResponse.Free;
+  end;
   UpdateRecentOrdersUI;
 end;
 
@@ -159,66 +208,72 @@ begin
   begin
     LItem := ListViewRecentOrders.Items.Add;
     LItem.Text := FRecentOrders[I].MusteriAdi;
-    LItem.Detail := FRecentOrders[I].GetItemsSummary + ' - ' +
-                    FRecentOrders[I].GetFormattedToplam;
+    LItem.Detail := FRecentOrders[I].GetFormattedToplam;
     LItem.Tag := FRecentOrders[I].Id;
   end;
 end;
 
 procedure TFrmMain.SetActiveTab(AIndex: Integer);
+const
+  COLOR_INACTIVE = $FF757575;
 begin
   FCurrentTab := AIndex;
-  BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnTabSiparisler.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnTabBildirimler.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnTabAyarlar.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+  BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  BtnTabSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  BtnTabBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
+  BtnTabAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_INACTIVE);
 
   case AIndex of
-    0: BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColorRec.Create(COLOR_PRIMARY);
-    1: BtnTabSiparisler.TextSettings.FontColor := TAlphaColorRec.Create(COLOR_PRIMARY);
-    3: BtnTabBildirimler.TextSettings.FontColor := TAlphaColorRec.Create(COLOR_PRIMARY);
-    4: BtnTabAyarlar.TextSettings.FontColor := TAlphaColorRec.Create(COLOR_PRIMARY);
+    0: BtnTabAnaSayfa.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
+    1: BtnTabSiparisler.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
+    3: BtnTabBildirimler.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
+    4: BtnTabAyarlar.TextSettings.FontColor := TAlphaColor(COLOR_PRIMARY);
   end;
 end;
 
 procedure TFrmMain.BtnYeniSiparisClick(Sender: TObject);
 begin
-  // Navigate to FrmYeniSiparis
+  FrmYeniSiparis.Show;
 end;
 
 procedure TFrmMain.BtnSiparislerClick(Sender: TObject);
 begin
-  // Navigate to FrmSiparisler
+  FrmSiparisler.Show;
 end;
 
 procedure TFrmMain.BtnMusterilerClick(Sender: TObject);
 begin
-  // Navigate to Customers screen
+  FrmMusteriSec.Show;
 end;
 
 procedure TFrmMain.BtnTahsilatClick(Sender: TObject);
 begin
-  // Navigate to Collections screen
+  // TODO: Tahsilat ekrani
 end;
 
 procedure TFrmMain.BtnKuryeTakipClick(Sender: TObject);
 begin
-  // Navigate to FrmKuryeTakip
+  FrmKuryeTakip.Show;
 end;
 
 procedure TFrmMain.BtnKasaClick(Sender: TObject);
 begin
-  // Navigate to Cash register
+  // TODO: Kasa ekrani
 end;
 
 procedure TFrmMain.BtnStoklarClick(Sender: TObject);
 begin
-  // Navigate to Stocks screen
+  // TODO: Stoklar ekrani
 end;
 
 procedure TFrmMain.BtnRaporlarClick(Sender: TObject);
 begin
-  // Navigate to Reports screen
+  // TODO: Raporlar ekrani
+end;
+
+procedure TFrmMain.BtnTumuSiparislerClick(Sender: TObject);
+begin
+  FrmSiparisler.Show;
 end;
 
 procedure TFrmMain.BtnTabAnaSayfaClick(Sender: TObject);
@@ -229,11 +284,12 @@ end;
 procedure TFrmMain.BtnTabSiparislerClick(Sender: TObject);
 begin
   SetActiveTab(1);
+  FrmSiparisler.Show;
 end;
 
 procedure TFrmMain.BtnTabYeniSiparisClick(Sender: TObject);
 begin
-  // Navigate to FrmYeniSiparis
+  FrmYeniSiparis.Show;
 end;
 
 procedure TFrmMain.BtnTabBildirimlerClick(Sender: TObject);

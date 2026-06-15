@@ -20,202 +20,243 @@ object FrmSiparisler: TFrmSiparisler
       Size.Width = 390.000000000000000000
       Size.Height = 56.000000000000000000
       Size.PlatformDefault = False
-      TabOrder = 0
       object RectHeader: TRectangle
         Align = Client
-        Fill.Color = claWhite
-        Stroke.Color = xFFE0E0E0
-        XRadius = 0.000000000000000000
-        YRadius = 0.000000000000000000
+        Fill.Color = xFF1565C0
+        Stroke.Kind = None
+        Size.Width = 390.000000000000000000
+        Size.Height = 56.000000000000000000
+        Size.PlatformDefault = False
         object BtnBack: TSpeedButton
           Align = Left
-          Margins.Left = 8.000000000000000000
-          Size.Width = 40.000000000000000000
+          Size.Width = 48.000000000000000000
           Size.Height = 56.000000000000000000
           Size.PlatformDefault = False
+          StyledSettings = [Family, Size]
+          TextSettings.FontColor = xFFFFFFFF
           Text = '<'
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 24.000000000000000000
+          OnClick = BtnBackClick
         end
         object LblHeaderTitle: TLabel
-          Align = Center
-          Size.Width = 200.000000000000000000
-          Size.Height = 56.000000000000000000
-          Size.PlatformDefault = False
+          Align = Client
           StyledSettings = [Family]
           TextSettings.Font.Size = 18.000000000000000000
-          TextSettings.Font.Style = [fsBold]
-          TextSettings.HorzAlign = Center
+          TextSettings.FontColor = xFFFFFFFF
+          TextSettings.HorzAlign = Leading
           Text = 'Siparisler'
+          TabOrder = 1
+          Margins.Left = 8.000000000000000000
         end
       end
     end
-    object LayoutSearch: TLayout
-      Align = Top
-      Margins.Left = 16.000000000000000000
-      Margins.Top = 12.000000000000000000
-      Margins.Right = 16.000000000000000000
-      Size.Width = 358.000000000000000000
-      Size.Height = 44.000000000000000000
-      Size.PlatformDefault = False
-      TabOrder = 1
-      object RectSearch: TRectangle
-        Align = Client
-        Fill.Color = claWhite
-        XRadius = 22.000000000000000000
-        YRadius = 22.000000000000000000
-        Stroke.Color = xFFE0E0E0
-        object EdtSearch: TEdit
-          Align = Client
-          Margins.Left = 16.000000000000000000
-          Margins.Right = 16.000000000000000000
-          Size.Width = 326.000000000000000000
-          Size.Height = 44.000000000000000000
-          Size.PlatformDefault = False
-          TextPrompt = 'Musteri adi veya telefon ile ara...'
-          StyledSettings = [Family]
-          TextSettings.Font.Size = 14.000000000000000000
-        end
-      end
-    end
-    object LayoutFilter: TLayout
-      Align = Top
-      Margins.Left = 16.000000000000000000
-      Margins.Top = 12.000000000000000000
-      Margins.Right = 16.000000000000000000
-      Size.Width = 358.000000000000000000
-      Size.Height = 36.000000000000000000
-      Size.PlatformDefault = False
-      TabOrder = 2
-      object GridFilter: TGridPanelLayout
-        Align = Client
-        Size.Width = 358.000000000000000000
-        Size.Height = 36.000000000000000000
-        Size.PlatformDefault = False
-        ColumnCollection = <
-          item
-            Value = 20.000000000000000000
-          end
-          item
-            Value = 20.000000000000000000
-          end
-          item
-            Value = 20.000000000000000000
-          end
-          item
-            Value = 20.000000000000000000
-          end
-          item
-            Value = 20.000000000000000000
-          end>
-        ControlCollection = <
-          item
-            Column = 0
-            Control = BtnFilterTumu
-            Row = 0
-          end
-          item
-            Column = 1
-            Control = BtnFilterHazirlaniyor
-            Row = 0
-          end
-          item
-            Column = 2
-            Control = BtnFilterYolda
-            Row = 0
-          end
-          item
-            Column = 3
-            Control = BtnFilterTeslim
-            Row = 0
-          end
-          item
-            Column = 4
-            Control = BtnFilterIptal
-            Row = 0
-          end>
-        RowCollection = <
-          item
-            Value = 100.000000000000000000
-          end>
-        TabOrder = 0
-        object BtnFilterTumu: TCornerButton
-          Align = Client
-          Margins.Left = 2.000000000000000000
-          Margins.Right = 2.000000000000000000
-          Size.Width = 67.600006103515620000
-          Size.Height = 36.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Tumu'
-          TextSettings.Font.Size = 10.000000000000000000
-          TextSettings.FontColor = claWhite
-          XRadius = 18.000000000000000000
-          YRadius = 18.000000000000000000
-        end
-        object BtnFilterHazirlaniyor: TCornerButton
-          Align = Client
-          Margins.Left = 2.000000000000000000
-          Margins.Right = 2.000000000000000000
-          Size.Width = 67.600006103515620000
-          Size.Height = 36.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Hazir.'
-          TextSettings.Font.Size = 10.000000000000000000
-          XRadius = 18.000000000000000000
-          YRadius = 18.000000000000000000
-        end
-        object BtnFilterYolda: TCornerButton
-          Align = Client
-          Margins.Left = 2.000000000000000000
-          Margins.Right = 2.000000000000000000
-          Size.Width = 67.600006103515620000
-          Size.Height = 36.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Yolda'
-          TextSettings.Font.Size = 10.000000000000000000
-          XRadius = 18.000000000000000000
-          YRadius = 18.000000000000000000
-        end
-        object BtnFilterTeslim: TCornerButton
-          Align = Client
-          Margins.Left = 2.000000000000000000
-          Margins.Right = 2.000000000000000000
-          Size.Width = 67.600006103515620000
-          Size.Height = 36.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Teslim'
-          TextSettings.Font.Size = 10.000000000000000000
-          XRadius = 18.000000000000000000
-          YRadius = 18.000000000000000000
-        end
-        object BtnFilterIptal: TCornerButton
-          Align = Client
-          Margins.Left = 2.000000000000000000
-          Margins.Right = 2.000000000000000000
-          Size.Width = 67.600006103515620000
-          Size.Height = 36.000000000000000000
-          Size.PlatformDefault = False
-          Text = 'Iptal'
-          TextSettings.Font.Size = 10.000000000000000000
-          XRadius = 18.000000000000000000
-          YRadius = 18.000000000000000000
-        end
-      end
-    end
-    object ListViewOrders: TListView
+    object TabControlMain: TTabControl
       Align = Client
-      Margins.Left = 16.000000000000000000
-      Margins.Top = 12.000000000000000000
-      Margins.Right = 16.000000000000000000
-      Margins.Bottom = 16.000000000000000000
-      Size.Width = 358.000000000000000000
-      Size.Height = 624.000000000000000000
+      Size.Width = 390.000000000000000000
+      Size.Height = 788.000000000000000000
       Size.PlatformDefault = False
-      ItemAppearanceClassName = 'TListItemAppearance'
-      ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
-      HeaderAppearanceClassName = 'TListHeaderObjects'
-      FooterAppearanceClassName = 'TListHeaderObjects'
-      PullToRefresh = True
+      TabIndex = 0
+      TabPosition = Top
+      OnChange = TabControlMainChange
+      object TabSiparisler: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = True
+        Size.Width = 195.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 0
+        Text = 'Siparisler'
+        ExplicitSize.cx = 50.000000000000000000
+        ExplicitSize.cy = 50.000000000000000000
+        object LayoutSearch: TLayout
+          Align = Top
+          Size.Width = 390.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          Margins.Left = 12.000000000000000000
+          Margins.Right = 12.000000000000000000
+          Margins.Top = 8.000000000000000000
+          object RectSearch: TRectangle
+            Align = Client
+            Fill.Color = xFFFFFFFF
+            Stroke.Color = xFFE0E0E0
+            XRadius = 8.000000000000000000
+            YRadius = 8.000000000000000000
+            Size.Width = 366.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            object EdtSearch: TEdit
+              Align = Client
+              Size.Width = 366.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              TextPrompt = 'Siparis veya musteri ara...'
+              OnChange = EdtSearchChange
+            end
+          end
+        end
+        object LayoutFilter: TLayout
+          Align = Top
+          Position.Y = 56.000000000000000000
+          Size.Width = 390.000000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          Margins.Left = 8.000000000000000000
+          Margins.Right = 8.000000000000000000
+          object GridFilter: TGridPanelLayout
+            Align = Client
+            Size.Width = 374.000000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            ColumnCollection = <
+              item
+                Value = 20.000000000000000000
+              end
+              item
+                Value = 20.000000000000000000
+              end
+              item
+                Value = 20.000000000000000000
+              end
+              item
+                Value = 20.000000000000000000
+              end
+              item
+                Value = 20.000000000000000000
+              end>
+            ControlCollection = <
+              item
+                Column = 0
+                Control = BtnFilterTumu
+                Row = 0
+              end
+              item
+                Column = 1
+                Control = BtnFilterHazirlaniyor
+                Row = 0
+              end
+              item
+                Column = 2
+                Control = BtnFilterYolda
+                Row = 0
+              end
+              item
+                Column = 3
+                Control = BtnFilterTeslim
+                Row = 0
+              end
+              item
+                Column = 4
+                Control = BtnFilterIptal
+                Row = 0
+              end>
+            RowCollection = <
+              item
+                Value = 100.000000000000000000
+              end>
+            object BtnFilterTumu: TCornerButton
+              Align = Client
+              Margins.Left = 2.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Size.Width = 70.800000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Tumu'
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              OnClick = BtnFilterTumuClick
+            end
+            object BtnFilterHazirlaniyor: TCornerButton
+              Align = Client
+              Margins.Left = 2.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Size.Width = 70.800000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Hazir'
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              OnClick = BtnFilterHazirlaniyorClick
+            end
+            object BtnFilterYolda: TCornerButton
+              Align = Client
+              Margins.Left = 2.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Size.Width = 70.800000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Yolda'
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              OnClick = BtnFilterYoldaClick
+            end
+            object BtnFilterTeslim: TCornerButton
+              Align = Client
+              Margins.Left = 2.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Size.Width = 70.800000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Teslim'
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              OnClick = BtnFilterTeslimClick
+            end
+            object BtnFilterIptal: TCornerButton
+              Align = Client
+              Margins.Left = 2.000000000000000000
+              Margins.Right = 2.000000000000000000
+              Size.Width = 70.800000000000000000
+              Size.Height = 40.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Iptal'
+              XRadius = 12.000000000000000000
+              YRadius = 12.000000000000000000
+              OnClick = BtnFilterIptalClick
+            end
+          end
+        end
+        object ListViewOrders: TListView
+          Align = Client
+          Size.Width = 390.000000000000000000
+          Size.Height = 692.000000000000000000
+          Size.PlatformDefault = False
+          ItemAppearanceClassName = 'TListItemAppearance'
+          ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TListHeaderObjects'
+          PullToRefresh = True
+          OnItemClick = ListViewOrdersItemClick
+          OnPullRefresh = ListViewOrdersPullRefresh
+        end
+      end
+      object TabGelenCagrilar: TTabItem
+        CustomIcon = <
+          item
+          end>
+        IsSelected = False
+        Size.Width = 195.000000000000000000
+        Size.Height = 32.000000000000000000
+        Size.PlatformDefault = False
+        StyleLookup = ''
+        TabOrder = 1
+        Text = 'Gelen Cagrilar'
+        ExplicitSize.cx = 50.000000000000000000
+        ExplicitSize.cy = 50.000000000000000000
+        object ListViewGelenCagrilar: TListView
+          Align = Client
+          Size.Width = 390.000000000000000000
+          Size.Height = 756.000000000000000000
+          Size.PlatformDefault = False
+          ItemAppearanceClassName = 'TListItemAppearance'
+          ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TListHeaderObjects'
+          OnItemClick = ListViewGelenCagrilarItemClick
+        end
+      end
     end
   end
 end

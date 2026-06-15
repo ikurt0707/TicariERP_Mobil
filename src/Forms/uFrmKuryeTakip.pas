@@ -155,22 +155,17 @@ begin
 end;
 
 procedure TFrmKuryeTakip.UpdateFilterButtons;
-var
-  LActiveColor, LInactiveColor: TAlphaColor;
 begin
-  LActiveColor := TAlphaColorRec.Create(COLOR_PRIMARY);
-  LInactiveColor := TAlphaColorRec.Create($FFE0E0E0);
-
-  BtnFilterTumu.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnFilterYolda.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnFilterTeslim.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
-  BtnFilterBekliyor.TextSettings.FontColor := TAlphaColorRec.Create($FF757575);
+  BtnFilterTumu.TextSettings.FontColor := TAlphaColor($FF757575);
+  BtnFilterYolda.TextSettings.FontColor := TAlphaColor($FF757575);
+  BtnFilterTeslim.TextSettings.FontColor := TAlphaColor($FF757575);
+  BtnFilterBekliyor.TextSettings.FontColor := TAlphaColor($FF757575);
 
   case FCurrentFilter of
-    ktfTumu: BtnFilterTumu.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
-    ktfYolda: BtnFilterYolda.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
-    ktfTeslimEdildi: BtnFilterTeslim.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
-    ktfBekliyor: BtnFilterBekliyor.TextSettings.FontColor := TAlphaColorRec.Create($FFFFFFFF);
+    ktfTumu: BtnFilterTumu.TextSettings.FontColor := TAlphaColor($FFFFFFFF);
+    ktfYolda: BtnFilterYolda.TextSettings.FontColor := TAlphaColor($FFFFFFFF);
+    ktfTeslimEdildi: BtnFilterTeslim.TextSettings.FontColor := TAlphaColor($FFFFFFFF);
+    ktfBekliyor: BtnFilterBekliyor.TextSettings.FontColor := TAlphaColor($FFFFFFFF);
   end;
 end;
 
