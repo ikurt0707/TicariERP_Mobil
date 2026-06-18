@@ -37,7 +37,10 @@ begin
   WriteLn('[DM] Tenant DataModule olusturuldu.');
   DMAuth := TDMAuth.Create(nil);
   ServerContainer1 := TServerContainer1.Create(nil);
-  WriteLn('[ServerContainer] DSServer olusturuldu.');
+  WriteLn('[ServerContainer] DataModule olusturuldu.');
+  // DSServer'i tum class registrasyonlari tamamlandiktan sonra baslat
+  ServerContainer1.DSServer1.Start;
+  WriteLn('[DSServer] Basladi. Kayitli siniflar: TSmAuth, TSmCari, TSmSiparis, TSmStok, TSmCallerID, TSmKurye');
 
   LServer := TIdHTTPWebBrokerBridge.Create(nil);
   try

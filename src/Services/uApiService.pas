@@ -51,9 +51,13 @@ type
     property Timeout: Integer read FTimeout write FTimeout;
   end;
 
-/// <summary>DataSnap result wrapper'dan veriyi cikarir.
-/// DataSnap {"result": [<data>]} formatinda sarar, bu fonksiyon ic objeyi dondurur.</summary>
+/// <summary>DataSnap result wrapper'dan ilk JSON objesini cikarir.
+/// DataSnap {"result": [<data>]} formatinda sarar, bu fonksiyon result[0] objesini dondurur.</summary>
 function ExtractDSResult(AResponse: TApiResponse): TJSONObject;
+
+/// <summary>DataSnap result wrapper'dan result array'ini cikarir.
+/// Birden fazla sonuc donen endpoint'ler icin kullanilir.</summary>
+function ExtractDSResultArray(AResponse: TApiResponse): TJSONArray;
 
 var
   ApiService: TApiService;
@@ -264,13 +268,11 @@ function ExtractDSResult(AResponse: TApiResponse): TJSONObject;
 var
   LRoot: TJSONObject;
   LResultArray: TJSONArray;
+  LVal: TJSONValue;
 begin
   Result := nil;
 
   if not Assigned(AResponse) then
-    Exit;
-
-  if not AResponse.Success then
     Exit;
 
   if not (AResponse.Data is TJSONObject) then
@@ -278,8 +280,11 @@ begin
 
   LRoot := TJSONObject(AResponse.Data);
 
-  if not LRoot.TryGetValue<TJSONArray>('result', LResultArray) then
+  LVal := LRoot.GetValue('result');
+  if not (LVal is TJSONArray) then
     Exit;
+
+  LResultArray := TJSONArray(LVal);
 
   if (LResultArray.Count = 0) then
     Exit;
@@ -288,6 +293,28 @@ begin
     Exit;
 
   Result := TJSONObject(LResultArray.Items[0]);
+end;
+
+function ExtractDSResultArray(AResponse: TApiResponse): TJSONArray;
+var
+  LRoot: TJSONObject;
+  LVal: TJSONValue;
+begin
+  Result := nil;
+
+  if not Assigned(AResponse) then
+    Exit;
+
+  if not (AResponse.Data is TJSONObject) then
+    Exit;
+
+  LRoot := TJSONObject(AResponse.Data);
+
+  LVal := LRoot.GetValue('result');
+  if not (LVal is TJSONArray) then
+    Exit;
+
+  Result := TJSONArray(LVal);
 end;
 
 initialization
