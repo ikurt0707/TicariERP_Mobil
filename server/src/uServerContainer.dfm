@@ -2,7 +2,7 @@ object ServerContainer1: TServerContainer1
   Height = 271
   Width = 415
   object DSServer1: TDSServer
-    AutoStart = True
+    AutoStart = False
     Left = 56
     Top = 24
   end
